@@ -1,0 +1,46 @@
+version: 0.2
+
+env:
+  shell: bash
+phases:
+  install:
+    runtime-versions:
+      nodejs: 14
+    commands:
+      - pipeline_result="failed"
+      - echo Entered the install phase...
+      - npm install -g serverless@^2.4.0
+      - |
+        if [ ! -z ${CURRENT_ENVIRONMENT} ]
+        then
+        STAGE=$CURRENT_ENVIRONMENT
+        fi
+      - |
+        VERSION_BACKEND=$(sed -nE 's/^\s*"version": "(.*?)",$/\1/p' backend/package.json)
+        VERSION_FRONTEND=$(sed -nE 's/^\s*"version": "(.*?)",$/\1/p' frontend/package.json)
+        echo "$VERSION_BACKEND"
+        echo "$VERSION_FRONTEND"
+        echo "$STAGE"
+        pwd
+      - oldpath=`pwd`
+      - aws --version
+    finally:
+      - echo Install command failed
+  build:
+    commands:
+      - echo Entered the build phase...
+      - echo Build started on `date`
+      - cd deployment
+      - /bin/bash deployStack.sh $STAGE
+      - pipeline_result="success"
+    finally:
+      - pwd
+      - source "../backend/resources.sh" $STAGE && SERVICE_NAME=$(getResourceByName SERVICE_NAME)
+      - CHANGES="`cat ./changes`"
+      - MESSAGE='{"status":"'${pipeline_result}'", "env":"'${STAGE}'", "github":"https://github.com/cloudhesive/consorcio-seguros/commits/'${CODEBUILD_RESOLVED_SOURCE_VERSION}'", "deploys":['${CHANGES}']}'
+      - aws sqs send-message --queue-url https://sqs.us-east-1.amazonaws.com/678249236579/${SERVICE_NAME}-${STAGE}-deployment-notification-queue --message-body "${MESSAGE}"
+      - rm ./changes
+  post_build:
+    commands:
+      - echo Entered the post_build phase...
+      - echo Build completed on `date`

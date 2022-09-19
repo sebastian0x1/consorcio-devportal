@@ -1,0 +1,165 @@
+Parameters:
+  horario:
+    Type: String
+    Default: 'lu-vi 800-1900'
+Resources:
+  # Build AWS Config Recorder
+  ConfigRecorder:
+    Type: 'AWS::Config::ConfigurationRecorder'
+    Condition: ConfigRecorderNotExists
+    Properties:
+      Name: 'ConfigRecoder'
+      RecordingGroup:
+        ResourceTypes:
+          - 'AWS::ApiGateway::RestApi'
+          - 'AWS::ApiGateway::Stage'
+          - 'AWS::ApiGatewayV2::Api'
+          - 'AWS::ApiGatewayV2::Stage'
+        #IncludeGlobalResourceTypes: true
+      RoleARN: !GetAtt
+        - IamRoleConfig
+        - Arn
+
+  # Build IAM Role for Config
+  IamRoleConfig:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: ${self:service}-${self:provider.stage}-IamRoleConfig-${self:provider.region}
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - config.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSConfigRole'
+      Path: /
+      Policies:
+        - PolicyName: S3-access
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:PutObject'
+                Resource: !Join
+                  - ''
+                  - - 'arn:aws:s3:::'
+                    #- !Ref AWSConfigS3Bucket
+                    - ${self:service}-stack-${self:provider.region}-${self:provider.stage}
+                    - /AWSLogs/
+                    - !Ref 'AWS::AccountId'
+                    - /*
+                Condition:
+                  StringLike:
+                    's3:x-amz-acl': bucket-owner-full-control
+              - Effect: Allow
+                Action:
+                  - 's3:GetBucketAcl'
+                Resource: !Join
+                  - ''
+                  - - 'arn:aws:s3:::'
+                    #- !Ref AWSConfigS3Bucket
+                    - ${self:service}-stack-${self:provider.region}-${self:provider.stage}
+      Tags:
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+    #DependsOn: AWSConfigS3Bucket
+  # Create Config Delivery Channel
+  DeliveryChannel:
+    Type: 'AWS::Config::DeliveryChannel'
+    Condition: DeliveryChannelNotExists
+    Properties:
+      Name: 'DeliveryChannel'
+      #S3BucketName: !Ref AWSConfigS3Bucket
+      S3BucketName: ${self:service}-stack-${self:provider.region}-${self:provider.stage}
+
+  #### Ultimo comentado - probando que funcione EventBridge
+  #CSLambdaDetectRole:
+  #  Type: 'AWS::IAM::Role'
+  #  Properties:
+  #    RoleName: ${self:service}-lambda-detect-role-${self:provider.stage}-${self:provider.region}
+  #    AssumeRolePolicyDocument:
+  #      Version: '2012-10-17'
+  #      Statement:
+  #        - Effect: Allow
+  #          Principal:
+  #            Service:
+  #              - lambda.amazonaws.com
+  #          Action:
+  #            - 'sts:AssumeRole'
+  #    Path: /
+  #    Policies:
+  #      - PolicyName: root
+  #        PolicyDocument:
+  #          Version: '2012-10-17'
+  #          Statement:
+  #            - Effect: Allow
+  #              Action: '*'
+  #              Resource: '*'
+#
+#ConfigPermissionToCallLambda:
+#  Type: AWS::Lambda::Permission
+#  Properties:
+#    FunctionName:
+#      Fn::Join:
+#        - ':'
+#        - - 'arn:aws:lambda'
+#          - Ref: 'AWS::Region'
+#          - Ref: 'AWS::AccountId'
+#          - 'function:${self:service}-${env:STAGE}-api-manager'
+#    Action: 'lambda:InvokeFunction'
+#    Principal: 'config.amazonaws.com'
+#    SourceAccount: !Ref AWS::AccountId
+#  DependsOn: ApiDashmanagerLambdaFunction
+#ConfigRuleForApiGatewayChanges:
+#  Type: AWS::Config::ConfigRule
+#  Properties:
+#    ConfigRuleName: ConfigRuleForApiGatewayChanges
+#    Scope:
+#      ComplianceResourceTypes:
+#        - 'AWS::ApiGateway::RestApi'
+#        - 'AWS::ApiGateway::Stage'
+#        - 'AWS::ApiGatewayV2::Api'
+#        - 'AWS::ApiGatewayV2::Stage'
+#    Source:
+#      Owner: 'CUSTOM_LAMBDA'
+#      SourceDetails:
+#        - EventSource: 'aws.config'
+#          MessageType: 'ConfigurationItemChangeNotification'
+#      SourceIdentifier:
+#        Fn::Join:
+#          - ':'
+#          - - 'arn:aws:lambda'
+#            - Ref: 'AWS::Region'
+#            - Ref: 'AWS::AccountId'
+#            - 'function:${self:service}-${env:STAGE}-api-manager'
+#  DependsOn: ConfigPermissionToCallLambda
+
+Outputs:
+  IamRoleConfig:
+    Description: 'IAM Role for Config'
+    Value:
+      Ref: 'IamRoleConfig'
+  #AWSConfigS3Bucket:
+  #  Description: 'Encrypted S3 Bucket for Config Logs'
+  #  Value:
+  #    Ref: 'AWSConfigS3Bucket'
+  #ConfigRecorder:
+  #  Description: 'Config Recorder'
+  #  Value:
+  #    Ref: 'ConfigRecorder'
+  #DeliveryChannel:
+  #  Description: 'Config Delivery Channel'
+  #  Value:
+  #    Ref: 'DeliveryChannel'

@@ -1,0 +1,190 @@
+first-user:
+  handler: users/firstUser.handler
+  timeout: 25
+  # serverless invoke local -f first-user --stage dev
+register-user:
+  handler: users/createUser.handler
+  events:
+    - http:
+        path: /users
+        cors: true
+        method: 'POST'
+        authorizer: 
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { "Fn::GetAtt": ["BasicUserAuthorizerLambdaFunction", "Arn"] }
+          resultTtlInSeconds: 0
+
+update-user:
+  handler: users/updateUser.handler
+  events:
+    - http:
+        path: /users/{cognito_id}
+        cors: true
+        method: 'PUT'
+        authorizer: 
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { "Fn::GetAtt": ["BasicUserAuthorizerLambdaFunction", "Arn"] }
+          resultTtlInSeconds: 0
+
+delete-user:
+  handler: users/deleteUser.handler
+  events:
+    - http:
+        path: /users/{cognito_id}
+        cors: true
+        method: 'DELETE'
+        authorizer: 
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { "Fn::GetAtt": ["BasicUserAuthorizerLambdaFunction", "Arn"] }
+          resultTtlInSeconds: 0
+
+confirm-user:
+  handler: users/confirmUser.handler
+  events:
+    - http:
+        path: /confirm_user/{username}
+        cors: true
+        method: 'POST'
+        authorizer: 
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { "Fn::GetAtt": ["BasicUserAuthorizerLambdaFunction", "Arn"] }
+          resultTtlInSeconds: 0
+
+forgot-password:
+  handler: users/forgotPassword.handler
+  events:
+    - http:
+        path: /forgot_password
+        cors: true
+        method: 'POST'
+
+reset-password:
+  handler: users/resetPassword.handler
+  events:
+    - http:
+        path: /reset_password
+        cors: true
+        method: 'POST'
+
+change-password:
+  handler: users/changeUserPassword.handler
+  events:
+    - http:
+        path: /change_password
+        cors: true
+        method: 'POST'
+        authorizer: 
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { "Fn::GetAtt": ["BasicUserAuthorizerLambdaFunction", "Arn"] }
+          resultTtlInSeconds: 0
+
+resend-confirmation-code:
+  handler: users/resendConfirmationCode.handler
+  events:
+    - http:
+        path: /resend_confirmation_code/{username}
+        cors: true
+        method: 'POST'
+
+get-users:
+  handler: users/AbmUsersTable.handler
+  events:
+    - http:
+        path: /users
+        cors: true
+        method: 'GET'
+        authorizer: 
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { "Fn::GetAtt": ["BasicUserAuthorizerLambdaFunction", "Arn"] }
+          resultTtlInSeconds: 0
+
+get-users-roles:
+  handler: users/getRoles.handler
+  events:
+    - http:
+        path: /users/roles
+        cors: true
+        method: 'GET'
+        authorizer: 
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { "Fn::GetAtt": ["BasicUserAuthorizerLambdaFunction", "Arn"] }
+          resultTtlInSeconds: 0
+
+get-realms:
+  handler: users/getRealms.handler
+  events:
+    - http:
+        path: /users/getRealms
+        cors: true
+        method: 'GET'
+        authorizer: 
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { "Fn::GetAtt": ["BasicUserAuthorizerLambdaFunction", "Arn"] }
+          resultTtlInSeconds: 0 
+
+auto-confirm:
+  handler: users/autoConfirmSignUp.handler
+  events:
+    - cognitoUserPool:
+        pool: cs-${env:STAGE}-cognito-user-pool
+        trigger: PreSignUp
+        existing: true
+        forceDeploy: true
+
+ssoValidate:
+  handler: users/ssoValidate.handler
+  timeout: 25
+  events:
+  - http:
+      path: /users/sso_validate
+      cors: true
+      method: 'POST'
+
+  # events:
+  #   - cognitoUserPool:
+  #       pool: cs-${env:STAGE}-cognito-user-pool
+  #       trigger: PostConfirmation
+  #       existing: true
+  #       forceDeploy: true
+
+save-sso-credentials:
+  handler: users/saveSsoCredentials.handler
+  events:
+    - http:
+        path: /credentials/{cognito_id}
+        cors: true
+        method: 'PUT'
+        authorizer: 
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { "Fn::GetAtt": ["BasicUserAuthorizerLambdaFunction", "Arn"] }
+          resultTtlInSeconds: 0
+
+test-sso-credentials:
+  handler: users/useSsoCredentials.handler
+  events:
+    - http:
+        path: /credentials
+        cors: true
+        method: 'POST'
+        authorizer: 
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { "Fn::GetAtt": ["BasicUserAuthorizerLambdaFunction", "Arn"] }
+          resultTtlInSeconds: 0
+
+delete-db-user:
+  handler: users/deleteDbUser.handler
+  events:
+    - eventBridge:
+        pattern:
+          source:
+            - aws.cognito-idp

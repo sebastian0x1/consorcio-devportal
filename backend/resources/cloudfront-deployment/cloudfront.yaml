@@ -1,0 +1,93 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: ""
+Parameters:
+  BUCKET:
+    Type: String
+
+Resources:
+    CloudFrontDistribution:
+        Type: "AWS::CloudFront::Distribution"
+        Properties:
+            DistributionConfig: 
+                Origins: 
+                  - 
+                    ConnectionAttempts: 3
+                    ConnectionTimeout: 10
+                    DomainName: !Sub "${BUCKET}.s3.amazonaws.com"
+                    Id: !Sub "${BUCKET}.s3.amazonaws.com"
+                    OriginPath: ""
+                    S3OriginConfig: 
+                        OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CloudFrontCloudFrontOriginAccessIdentity}"
+                DefaultCacheBehavior: 
+                    AllowedMethods: 
+                      - "HEAD"
+                      - "DELETE"
+                      - "POST"
+                      - "GET"
+                      - "OPTIONS"
+                      - "PUT"
+                      - "PATCH"
+                    CachedMethods: 
+                      - "HEAD"
+                      - "GET"
+                    Compress: true
+                    DefaultTTL: 86400
+                    ForwardedValues: 
+                        Cookies: 
+                            Forward: "none"
+                        QueryString: false
+                    MaxTTL: 31536000
+                    MinTTL: 0
+                    SmoothStreaming: false
+                    TargetOriginId: !Sub "${BUCKET}.s3.amazonaws.com"
+                    ViewerProtocolPolicy: "redirect-to-https"
+                CustomErrorResponses: 
+                  - 
+                    ErrorCode: 400
+                    ResponsePagePath: "/"
+                    ResponseCode: "200"
+                    ErrorCachingMinTTL: 300
+                  - 
+                    ErrorCode: 403
+                    ResponsePagePath: "/"
+                    ResponseCode: "200"
+                    ErrorCachingMinTTL: 300
+                  - 
+                    ErrorCode: 404
+                    ResponsePagePath: "/"
+                    ResponseCode: "200"
+                    ErrorCachingMinTTL: 300
+                Comment: ""
+                PriceClass: "PriceClass_100"
+                Enabled: true
+                # ViewerCertificate: 
+                #     CloudFrontDefaultCertificate: true
+                #     MinimumProtocolVersion: "TLSv1"
+                #     SslSupportMethod: "vip"
+                Restrictions: 
+                    GeoRestriction: 
+                        RestrictionType: "none"
+                HttpVersion: "http2"
+                DefaultRootObject: "index.html"
+                IPV6Enabled: true
+
+    CloudFrontCloudFrontOriginAccessIdentity:
+        Type: "AWS::CloudFront::CloudFrontOriginAccessIdentity"
+        Properties:
+            CloudFrontOriginAccessIdentityConfig: 
+                Comment: !Sub "access-identity-${BUCKET}.s3.amazonaws.com"
+
+Outputs:
+  CloudFrontDomain:
+    Value: !GetAtt CloudFrontDistribution.DomainName
+    Export:
+      Name: !Join ['-', [!Ref 'AWS::StackName', 'CloudFrontDomain']]
+  CloudFrontOAI:
+    Value: !Ref CloudFrontCloudFrontOriginAccessIdentity
+    Export:
+      Name: !Join ['-', [!Ref 'AWS::StackName', 'OAI']]
+  CloudFrontDistributionID:
+    Value: !Ref CloudFrontDistribution
+    Export:
+      Name: !Join ['-', [!Ref 'AWS::StackName', 'CloudFrontDistributionID']]
+

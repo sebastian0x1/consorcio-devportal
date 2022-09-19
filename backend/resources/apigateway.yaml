@@ -1,0 +1,29 @@
+#Resources:
+#  ApiGateway:
+#    Type: AWS::ApiGateway::RestApi
+#    Properties:
+#      Name: ApiGateway
+  
+#  Outputs:
+#    ApiGatewayRestApiId:
+#      Value:
+#        Ref: ApiGateway
+#      Export:
+#        Name: api-gateway:${env:stage}:rest-api
+#    ApiGatewayRestApiRootResourceId:
+#      Value:
+#        Fn::GetAtt:
+#          - ApiGateway
+#          - RootResourceId
+#      Export:
+#        Name: api-gateway:${env:stage}:root-resource
+
+
+  #JwtAuthorizerAuthApiGatewayAuthorizer:
+  #  Type: AWS::ApiGateway::Authorizer
+  #  Properties:
+  #    AuthorizerResultTtlInSeconds: 0
+  #    Name: authorizer
+  #    Type: TOKEN
+  #    RestApiId: 1rbuv31n61
+      

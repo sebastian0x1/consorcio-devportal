@@ -1,0 +1,103 @@
+get-apis:
+  handler: apis/AbmApisTable.handler
+  events:
+    - http:
+        path: /apis
+        cors: true
+        method: 'GET'
+        authorizer:
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { 'Fn::GetAtt': ['BasicUserAuthorizerLambdaFunction', 'Arn'] }
+          resultTtlInSeconds: 0
+
+create-apis:
+  handler: apis/createApi.handler
+  events:
+    - http:
+        path: /apis
+        cors: true
+        method: 'POST'
+        authorizer:
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { 'Fn::GetAtt': ['BasicUserAuthorizerLambdaFunction', 'Arn'] }
+          resultTtlInSeconds: 0
+
+remove-apis:
+  handler: apis/deleteApi.handler
+  events:
+    - http:
+        path: /apis/{api_id}
+        cors: true
+        method: 'DELETE'
+        authorizer:
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { 'Fn::GetAtt': ['BasicUserAuthorizerLambdaFunction', 'Arn'] }
+          resultTtlInSeconds: 0
+
+update-apis:
+  handler: apis/updateApi.handler
+  events:
+    - http:
+        path: /apis/{api_id}
+        cors: true
+        method: 'PUT'
+        authorizer:
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { 'Fn::GetAtt': ['BasicUserAuthorizerLambdaFunction', 'Arn'] }
+          resultTtlInSeconds: 0
+
+get-api-swagger:
+  handler: apis/getSwagger.handler
+  events:
+    - http:
+        path: /apis/swagger/{tag_account}/{stage}/{api_apiid}
+        cors: true
+        method: 'GET'
+        authorizer:
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { 'Fn::GetAtt': ['BasicUserAuthorizerLambdaFunction', 'Arn'] }
+          resultTtlInSeconds: 0
+
+get-api-list-menu:
+  handler: apis/getApiListMenu.handler
+  events:
+    - http:
+        path: /apis/menu/{role_id}
+        cors: true
+        method: 'GET'
+        authorizer:
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { 'Fn::GetAtt': ['BasicUserAuthorizerLambdaFunction', 'Arn'] }
+          resultTtlInSeconds: 0
+
+interceptor-swagger:
+  handler: apis/interceptorSwagger.handler
+  events:
+    - http:
+        path: /apis/interceptorSwagger
+        cors: true
+        method: 'POST'
+        authorizer:
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { 'Fn::GetAtt': ['BasicUserAuthorizerLambdaFunction', 'Arn'] }
+          resultTtlInSeconds: 0
+
+ping-api:
+  handler: apis/pingApi.handler
+  events:
+    - http:
+        path: /pingApi
+        cors: true
+        method: 'GET'
+        authorizer:
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { 'Fn::GetAtt': ['BasicUserAuthorizerLambdaFunction', 'Arn'] }
+          resultTtlInSeconds: 0

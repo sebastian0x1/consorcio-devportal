@@ -1,0 +1,134 @@
+stateMachines:
+  ApiChanges:
+    name: ApiChanges-${opt:stage}
+    definition:
+      Comment: A description of my state machine
+      StartAt: Massive or Individual
+      States:
+        Massive or Individual:
+          Type: Choice
+          Choices:
+            - Variable: '$.isFromAWSConfig'
+              BooleanEquals: true
+              Next: Triggered By Config
+          Default: Remove Orphan Api Rest
+        Remove Orphan Api Rest:
+          Type: Task
+          Resource: !GetAtt removeOrphanApiRest.Arn
+          ResultPath: '$.result'
+          Retry:
+            - ErrorEquals:
+                - States.ALL
+              IntervalSeconds: 5
+              MaxAttempts: 1
+              BackoffRate: 5
+          Catch:
+            - ErrorEquals:
+                - States.ALL
+              Next: Fail
+          Next: Get Api Rests
+        Triggered By Config:
+          Type: Task
+          Resource: !GetAtt triggeredByConfig.Arn
+          ResultPath: '$.result'
+          Retry:
+            - ErrorEquals:
+                - States.ALL
+              IntervalSeconds: 5
+              MaxAttempts: 3
+              BackoffRate: 5
+          Catch:
+            - ErrorEquals:
+                - States.ALL
+              Next: Fail
+          Next: checkProcess
+        checkProcess:
+          Type: Choice
+          Choices:
+            - And:
+                - Variable: '$.result.process'
+                  StringEquals: addOrUpdate
+                - Variable: '$.result.apiId'
+                  IsString: true
+              Next: Get Api Rests
+            - And:
+                - Variable: '$.result.process'
+                  StringEquals: delete
+                - Variable: '$.result.apiId'
+                  IsString: true
+              Next: DeleteResource
+          Default: Success
+        DeleteResource:
+          Type: Task
+          Resource: !GetAtt deleteResource.Arn
+          ResultPath: '$.result'
+          Retry:
+            - ErrorEquals:
+                - States.ALL
+              IntervalSeconds: 5
+              MaxAttempts: 3
+              BackoffRate: 5
+          Catch:
+            - ErrorEquals:
+                - States.ALL
+              Next: Fail
+          Next: Success
+        Get Api Rests:
+          Type: Task
+          Resource: !GetAtt getRestApis.Arn
+          ResultPath: '$.result'
+          Retry:
+            - ErrorEquals:
+                - States.ALL
+              IntervalSeconds: 5
+              MaxAttempts: 3
+              BackoffRate: 5
+          Catch:
+            - ErrorEquals:
+                - States.ALL
+              Next: Fail
+          Next: Is the itself service
+        Is the itself service:
+          Type: Choice
+          Choices:
+            - Variable: '$.result'
+              IsNull: true
+              Next: Success
+              Comment: ByPass
+          Default: Map
+        Map:
+          Type: Map
+          InputPath: '$.result.staff'
+          ItemsPath: '$.apisFromAws'
+          MaxConcurrency: 5
+          Parameters:
+            - api.$: '$$.Map.Item.Value'
+            - apisFromDB.$: '$.apisFromDB'
+          Iterator:
+            StartAt: Insert into DB and S3
+            States:
+              Insert into DB and S3:
+                Type: Task
+                Resource: !GetAtt insertRestApi.Arn
+                Retry:
+                  - ErrorEquals:
+                      - States.ALL
+                    IntervalSeconds: 10
+                    MaxAttempts: 1
+                    BackoffRate: 2
+                End: true
+          Next: Success
+          Retry:
+            - ErrorEquals:
+                - States.ALL
+              IntervalSeconds: 30
+              MaxAttempts: 1
+              BackoffRate: 2
+          Catch:
+            - ErrorEquals:
+                - States.ALL
+              Next: Fail
+        Fail:
+          Type: Fail
+        Success:
+          Type: Succeed

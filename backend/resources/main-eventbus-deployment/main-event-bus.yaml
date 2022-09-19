@@ -1,0 +1,64 @@
+Parameters:
+  PrincipalOrgId:
+    Type: String
+  Stage:
+    Type: String
+
+Resources:
+  MainEventBus:
+    Type: AWS::Events::EventBus
+    Properties:
+      Name: 'cs-portal-main-eventbus'
+      Tags:
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+
+  EventRule:
+    Type: AWS::Events::Rule
+    DependsOn: MainEventBus
+    Properties:
+      Name: trigger-to-sqs
+      Description: 'EventRule'
+      EventBusName: cs-portal-main-eventbus
+      EventPattern:
+        source:
+          - 'aws.config'
+        detail-type:
+          - 'Config Configuration Item Change'
+        detail:
+          configurationItem:
+            resourceType:
+              - 'AWS::ApiGateway::Stage'
+              - 'AWS::ApiGateway::RestApi'
+              - 'AWS::ApiGatewayV2::Api'
+              - 'AWS::ApiGatewayV2::Stage'
+      State: 'ENABLED'
+
+  MainEventBusPolicy:
+    Type: AWS::Events::EventBusPolicy
+    Properties:
+      EventBusName:
+        Ref: 'MainEventBus'
+      StatementId: 'MainEventBusPolicyStatement'
+      Statement:
+        Effect: 'Allow'
+        Principal: '*'
+        Action: 'events:PutEvents'
+        Resource: !GetAtt [MainEventBus, Arn]
+        Condition:
+          StringEquals:
+            'aws:PrincipalOrgID': !Ref PrincipalOrgId
+
+Outputs:
+  MainEventBusARN:
+    Value: !GetAtt MainEventBus.Arn
+    Export:
+      Name: !Join ['-', [!Ref 'AWS::StackName', 'MainEventBus']]

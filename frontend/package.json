@@ -1,0 +1,59 @@
+{
+  "name": "cl_consorcio_frontend",
+  "version": "3.0.23",
+  "private": true,
+  "dependencies": {
+    "@material-ui/core": "^4.12.3",
+    "@material-ui/icons": "^4.11.2",
+    "@reduxjs/toolkit": "^1.7.1",
+    "axios": "^0.24.0",
+    "crypto-js": "^4.1.1",
+    "dayjs": "^1.11.0",
+    "jwt-decode": "^3.1.2",
+    "lodash": "^4.17.21",
+    "moment-timezone": "^0.5.34",
+    "mui-datatables": "^3.7.4",
+    "prettier": "^2.5.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-router-dom": "^6.2.1",
+    "react-scripts": "5.0.0",
+    "redux": "^4.1.2",
+    "redux-logger": "^3.0.6",
+    "redux-saga": "^1.1.3",
+    "redux-thunk": "^2.4.1",
+    "semantic-ui-css": "^2.4.1",
+    "semantic-ui-react": "^0.87.3",
+    "swagger-ui": "^4.10.3",
+    "sweetalert": "^2.1.2",
+    "util": "^0.12.4",
+    "webpack": "^4.19.1"
+  },
+  "scripts": {
+    "start": "sed -i 's/;;/;/g' node_modules/semantic-ui-css/semantic*.css && react-scripts start",
+    "build": "sed -i 's/;;/;/g' node_modules/semantic-ui-css/semantic*.css && react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "format": "prettier --write './src/**/*.js' './src/**/*.jsx' && exit 0",
+    "upload-dev": "aws s3 sync ./build s3://el-nico-y-el-luqui-dev-fronts3-us-west-2 --acl private --delete",
+    "cdn-dev": "aws cloudfront create-invalidation --distribution-id E1HY3GMGGYL0T4 --pathsprivate --delete",
+    "cdn-prod": "aws cloudfront create-invalidation --distribution-id E3EI7Z3WV896H0 --paths '/*' --region us-east-1 --output text"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "devDependencies": {
+    "@testing-library/jest-dom": "^5.16.1",
+    "@testing-library/react": "^12.1.2",
+    "node-fetch": "^2.6.1"
+  }
+}

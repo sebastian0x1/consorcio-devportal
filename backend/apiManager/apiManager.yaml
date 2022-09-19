@@ -1,0 +1,31 @@
+getRestApis:
+  handler: ./apiManager/getRestApis.handler
+  timeout: 60
+
+insertRestApi:
+  handler: ./apiManager/insertRestApi.handler
+  timeout: 10
+
+triggeredByConfig:
+  handler: ./apiManager/triggeredByConfig.handler
+  timeout: 10
+
+removeOrphanApiRest:
+  handler: ./apiManager/removeOrphanApiRest.handler
+  timeout: 300
+
+triggeredFromEventBridge:
+  handler: ./apiManager/triggeredFromEventBridge.handler
+  timeout: 20
+  events:
+    - sqs:
+        batchSize: 1
+        maximumBatchingWindow: 5
+        arn:
+          Fn::GetAtt:
+            - EventBusNotificationQueue
+            - Arn
+
+deleteResource:
+  handler: ./apiManager/deleteResource.handler
+  timeout: 20

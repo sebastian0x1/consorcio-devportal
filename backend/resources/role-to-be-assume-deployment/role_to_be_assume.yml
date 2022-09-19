@@ -1,0 +1,70 @@
+Parameters:
+  ACCOUNTID:
+    Type: String
+    Default: 952129677059
+
+AWSTemplateFormatVersion: "2010-09-09"
+Metadata:
+    Generator: "former2"
+Description: ""
+Resources:
+    IAMRole:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/"
+            RoleName: "role_to_be_assume"
+            AssumeRolePolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                -
+                  Effect: "Allow"
+                  Principal:
+                    AWS: 
+                      !Join [ "", [ !Sub "arn:aws:iam::",!Ref ACCOUNTID, ':role/cs-portal-cicdprod-us-east-1-lambdaRole' ] ] # TODO! cicdprod deberia ser stage
+                    #"arn:aws:iam::250412402401:role/cs-portal-cicd-us-east-1-lambdaRole"
+                  Action:
+                    - "sts:AssumeRole"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns: 
+              - "arn:aws:iam::aws:policy/AmazonAPIGatewayAdministrator"
+            Description: "Allows Lambda functions to call API Gateway on your behalf."
+
+    AssumeRolePolicy:
+        Type: "AWS::IAM::Policy"
+        Properties:
+            PolicyDocument: |
+                {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Sid": "VisualEditor0",
+                            "Effect": "Allow",
+                            "Action": "sts:AssumeRole",
+                            "Resource": "*"
+                        }
+                    ]
+                }
+            Roles: 
+              - !Ref IAMRole
+            PolicyName: "sts_assume_role"
+
+    # CognitoPolicy:
+    #     Type: "AWS::IAM::Policy"
+    #     Properties:
+    #         PolicyDocument: |
+    #             {
+    #                 "Version": "2012-10-17",
+    #                 "Statement": [
+    #                     {
+    #                         "Effect": "Allow",
+    #                         "Action": [
+    #                             "cognito-idp:*"
+    #                         ],
+    #                         "Resource": "*"
+    #                     }
+    #                 ]
+    #             }
+    #         Roles: 
+    #           - !Ref IAMRole
+    #         PolicyName: "cognito-invoke-member"
+

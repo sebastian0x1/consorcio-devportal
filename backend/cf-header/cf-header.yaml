@@ -1,0 +1,6 @@
+cf-header:
+  handler: ./cf-header/index.handler
+  #events:
+  #  - cloudFront:
+  #      eventType: origin-response
+  #      origin: s3://cl-consorcio-seguros-${opt-stage}-csportalfrontends3bucket.s3.amazonaws.com/*

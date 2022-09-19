@@ -1,0 +1,55 @@
+Pasos para consultar Api Gateway's desde otra cuenta obteniendo accesos a traves del SDK Node
+
+Cuenta que quiere consultar las Apis de otra cuenta: 678249236579
+Cuenta que quiere ser consultada:  889933056432
+
+1. Crear un rol o utilizar uno existente en la cuenta donde se quieren consultar las APIS
+    Se creó un rol y se configuró como "Allows Lambda functions to call AWS Services on your behalf."
+2. Setear una Policy para acceder a API Gateway. Lo ideal serían sólo permisos de lectura para listar RestApi y Stages.
+    (Durante las pruebas se utilizó la policy AmazonAPIGatewayAdministrator pero no es la ideal. Probar sólo lo esencial)
+3. Trust Relationships:
+    
+Última Policy utilizada: (se agrega la Lambda de insertApi)
+* Se especifican las Lambdas que deben asumir roles. IMPORTANTE: cada cuenta miembro debería estar agregando éstas Trust Relationships para que la cuenta principal
+tenga acceso. BUSCAR LA MANERA DE GESTIONAR ESTO CON EL SOLO HECHO DE PERTENER A LA ORGANIZATION
+
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "Statement1",
+			"Effect": "Allow",
+			"Principal": {
+				"AWS": [ "arn:aws:sts::678249236579:assumed-role/cs-portal-dev-us-east-1-lambdaRole/cs-portal-dev-getRestApis",
+				         "arn:aws:sts::678249236579:assumed-role/cs-portal-dev-us-east-1-lambdaRole/cs-portal-dev-insertRestApi"]
+			},
+			"Action": "sts:AssumeRole"
+		}
+	]
+}
+
+
+Policy anterior:
+* Aquí le estamos otorgando accesos al usuario alejandro.vasile@cloudhesive.com para que pueda asumir el rol.
+* En el 2do elemento del array le estamos otorgando accesos a la lambda "cs-portal-dev-getRestApis"
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:sts::678249236579:assumed-role/AWSReservedSSO_AWSAdministratorAccess_8d502b407dadfe74/alejandro.vasile@cloudhesive.com"
+            },
+            "Action": "sts:AssumeRole"
+        },
+        {
+            "Sid": "Statement1",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:sts::678249236579:assumed-role/cs-portal-dev-us-east-1-lambdaRole/cs-portal-dev-getRestApis"
+            },
+            "Action": "sts:AssumeRole"
+        }
+    ]
+}

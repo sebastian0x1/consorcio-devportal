@@ -1,0 +1,44 @@
+{
+    "client": "Thunder Client",
+    "environmentName": "cs-env",
+    "dateExported": "2022-03-21T18:48:02.582Z",
+    "version": "1.0",
+    "variables": [
+        {
+            "name": "token",
+            "value": "token-test"
+        },
+        {
+            "name": "ambiente",
+            "value": "http://localhost:3000"
+        },
+        {
+            "name": "stage",
+            "value": "develop"
+        },
+        {
+            "name": "url",
+            "value": "{{ambiente}}/{{stage}}"
+        },
+        {
+            "name": "urlroles",
+            "value": "{{url}}/roles"
+        },
+        {
+            "name": "urlapis",
+            "value": "{{url}}/apis"
+        },
+        {
+            "name": "urlstages",
+            "value": "{{url}}/stages"
+        },
+        {
+            "name": "urlbusiness",
+            "value": "{{url}}/business-line"
+        },
+        {
+            "name": "urlusers",
+            "value": "{{url}}/users"
+        }
+    ]
+}

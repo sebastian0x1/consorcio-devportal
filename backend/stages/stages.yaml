@@ -1,0 +1,25 @@
+get-stages:
+  handler: stages/AbmStagesTable.handler
+  events:
+    - http:
+        path: /stages
+        cors: true
+        method: 'GET'
+        authorizer: 
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { "Fn::GetAtt": ["BasicUserAuthorizerLambdaFunction", "Arn"] }
+          resultTtlInSeconds: 0
+
+update-stages:
+  handler: stages/updateStage.handler
+  events:
+    - http:
+        path: /stages/{stage_id}
+        cors: true
+        method: 'PUT'
+        authorizer: 
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { "Fn::GetAtt": ["BasicUserAuthorizerLambdaFunction", "Arn"] }
+          resultTtlInSeconds: 0

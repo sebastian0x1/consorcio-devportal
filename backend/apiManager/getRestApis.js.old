@@ -1,0 +1,156 @@
+'use strict'
+const APIGateway = require('@aws-sdk/client-api-gateway')
+const apiGatewayClient = new APIGateway.APIGateway({ region: process.env.REGION })
+const path = require('path')
+
+const { getRestApisFromDB } = require('./apiManagerDB')
+
+const BUCKET = process.env.S3_BUCKET_NAME
+const STAGE = process.env.STAGE
+const SERVICE_NAME = process.env.SERVICE_NAME
+
+let apisFromDB = undefined
+
+const handler = async (event, context) => {
+  console.log('getRestApis.js - handler => event:', event)
+  console.log('getRestApis.js - handler => DB: ', process.env.MYSQL_DATABASE)
+  console.log('getRestApis.js - handler => BUCKET: ', BUCKET)
+
+  console.log('getRestApis.js - handler => Manual or CRON trigger')
+  let paramsLimit = event?.paramsLimit
+  let apiId = event?.result?.apiId ? event?.result?.apiId : ''
+  console.log(`getRestApis.js - handler => paramsLimit: ${paramsLimit} - apiId: ${apiId}`)
+  let apisFromAwsAndDb = null
+
+  try {
+    apisFromAwsAndDb = getRestApisFromDBAndAws({ apiId, paramsLimit })
+  } catch (error) {
+    console.error('getRestApis.js - handler => error:', error)
+    let error_parsed = JSON.parse(error?.Cause)
+    if (error_parsed?.errorMessage.includes('Invalid API identifier specified')) return
+    else throw 'getRestApis.js - handler => apiGatewayClient failed'
+  }
+  return apisFromAwsAndDb
+}
+
+/**
+ * Gets both rest Apis from DB and rest Apis from AWS to check if these last ones are registered
+ *
+ */
+async function getRestApisFromDBAndAws({ apiId = '', paramsLimit }) {
+  console.log('getRestApis.js - getRestApisFromDBAndAws')
+
+  apisFromDB = await getRestApisFromDB(apiId)
+  console.log('getRestApis.js - getRestApisFromDBAndAws => apisFromDB: ', JSON.stringify(apisFromDB, null, 2))
+
+  let apisFromAws = await getAllRestApiFromAws({ apiId, paramsLimit })
+  console.log('getRestApis.js - getRestApisFromDBAndAws => apisFromAws: ', JSON.stringify(apisFromAws, null, 2))
+
+  if (!apisFromAws) return
+  return {
+    staff: {
+      apisFromAws,
+      apisFromDB,
+    },
+  }
+}
+
+/**
+ * Gets all rest apis from AWS ApiGateway
+ *
+ * @return {Array.<{id: Number, name: String, stages: Array.<String>, createdAt: date}>}
+ */
+const getAllRestApiFromAws = async ({ apiId, paramsLimit }) => {
+  console.log(`getRestApis.js - getAllRestApiFromAws => apiId: ${apiId} - paramsLimit: ${paramsLimit}`)
+
+  let apisWithStageArray = []
+
+  let apisArray = []
+
+  if (apiId) {
+    let params = {
+      restApiId: apiId,
+    }
+    console.log('Antes de consultar apiGatewayClient')
+    let response = await apiGatewayClient.getRestApi(params)
+    if (response?.name.includes(SERVICE_NAME)) {
+      console.log(`getRestApis.js - getAllRestApiFromAws => Abort, the service itself is removed.`)
+      return
+    }
+    apisArray.push(response)
+  } else {
+    let params = {
+      limit: paramsLimit,
+      position: undefined,
+    }
+    apisArray = await apiGatewayClient.getRestApis(params)
+    params.position = apisArray?.position
+    apisArray = apisArray.items ? apisArray.items : null
+    console.log('getRestApis.js - getAllRestApiFromAws => Next position', params.position)
+
+    let apisArrayPart
+    while (params.position) {
+      apisArrayPart = await apiGatewayClient.getRestApis(params)
+      apisArray.push(...apisArrayPart.items)
+      params.position = apisArrayPart?.position
+      console.log('getRestApis.js - getAllRestApiFromAws => Next position', params.position)
+    }
+  }
+  console.log('getRestApis.js - getAllRestApiFromAws => apisArray:', apisArray)
+
+  if (!apisArray || apisArray.length == 0) {
+    console.log(`getRestApis.js - getAllRestApiFromAws => Abort, there are no Apis in AWS.`)
+    return
+  }
+
+  for (const api of apisArray) {
+    let stagesArray = await getStages(api.id)
+    if (!api.name.includes(SERVICE_NAME)) {
+      apisWithStageArray.push({
+        id: api.id,
+        name: api.name,
+        stages: stagesArray,
+        createdAt: api.createdDate,
+      })
+    }
+  }
+
+  if (apisWithStageArray.length == 1 && apisWithStageArray[0].stages.length == 0) {
+    console.log(`getRestApis.js - getAllRestApiFromAws => Abort, API does not have any stage.`)
+    return
+  }
+
+  return apisWithStageArray
+}
+
+/**
+ * Gets stages belonged to a rest api id
+ *
+ * @param {String} restApiId
+ * @return {[String]} array
+ */
+const getStages = async (restApiId) => {
+  let stagesParams = {
+    restApiId: restApiId,
+  }
+
+  let stages = await apiGatewayClient.getStages(stagesParams)
+  let stageArray = []
+
+  if (stages && stages.item) {
+    for (const stage of stages.item) {
+      stageArray.push({
+        name: stage.stageName,
+        createdAt: stage.createdDate,
+        updatedAt: stage.lastUpdatedDate,
+      })
+    }
+  }
+
+  return stageArray
+}
+
+module.exports = {
+  handler,
+  getAllRestApiFromAws,
+}

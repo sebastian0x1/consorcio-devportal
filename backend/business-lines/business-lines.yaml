@@ -1,0 +1,75 @@
+get-business-line:
+  handler: business-lines/AbmBusinessLineTable.handler
+  events:
+    - http:
+        path: /business-line
+        cors: true
+        method: 'GET'
+        authorizer: 
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { "Fn::GetAtt": ["BasicUserAuthorizerLambdaFunction", "Arn"] }
+          resultTtlInSeconds: 0
+create-business-line:
+  handler: business-lines/createBusinessLine.handler
+  events:
+    - http:
+        path: /business-line
+        cors: true
+        method: 'POST'
+        authorizer: 
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { "Fn::GetAtt": ["BasicUserAuthorizerLambdaFunction", "Arn"] }
+          resultTtlInSeconds: 0
+remove-business-line:
+  handler: business-lines/deleteBusinessLine.handler
+  events:
+    - http:
+        path: /business-line/{business_line_id}
+        cors: true
+        method: 'DELETE'
+        authorizer: 
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { "Fn::GetAtt": ["BasicUserAuthorizerLambdaFunction", "Arn"] }
+          resultTtlInSeconds: 0
+
+update-business-line:
+  handler: business-lines/updateBusinessLine.handler
+  events:
+    - http:
+        path: /business-line/{business_line_id}
+        cors: true
+        method: 'PUT'
+        authorizer: 
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { "Fn::GetAtt": ["BasicUserAuthorizerLambdaFunction", "Arn"] }
+          resultTtlInSeconds: 0
+
+get-business-line-apis:
+  handler: business-lines/getApis.handler
+  events:
+    - http:
+        path: /business-line/apis
+        cors: true
+        method: 'GET'
+        authorizer: 
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { "Fn::GetAtt": ["BasicUserAuthorizerLambdaFunction", "Arn"] }
+          resultTtlInSeconds: 0
+
+get-business-line-tag-accounts:
+  handler: business-lines/getTagAccounts.handler
+  events:
+    - http:
+        path: /business-line/tagAccounts
+        cors: true
+        method: 'GET'
+        authorizer: 
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { "Fn::GetAtt": ["BasicUserAuthorizerLambdaFunction", "Arn"] }
+          resultTtlInSeconds: 0

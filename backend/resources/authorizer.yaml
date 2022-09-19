@@ -1,0 +1,50 @@
+Resources:
+  Authorizer:
+    Type: AWS::ApiGateway::Authorizer
+    DependsOn:
+      # this is pre-defined by serverless
+      - ApiGatewayRestApi
+    Properties:
+      Name: Authorizer
+      Type: REQUEST
+      AuthorizerResultTtlInSeconds: 0
+      AuthorizerUri: arn:aws:lambda:us-east-1:678249236579:function:cs-portal-dev-authorizer
+      RestApiId: { 'Ref': 'ApiGatewayRestApi' }
+      Tags:
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+    # apparently ApiGatewayRestApi is a global string
+  apiGatewayLambdaPermissions:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName:
+        Fn::GetAtt: [AuthorizerLambdaFunction, Arn]
+      Action: lambda:InvokeFunction
+      Principal:
+        Fn::Join: ['', ['apigateway.', Ref: AWS::URLSuffix]]
+      Tags:
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+
+Outputs:
+  AuthorizerRef:
+    Value:
+      Ref: Authorizer
+    Export:
+      Name: authorizer-ref:${opt:stage}

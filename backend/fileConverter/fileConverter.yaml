@@ -1,0 +1,15 @@
+yaml-to-json:
+  handler: ./fileConverter/newconverter.handler
+  events:
+    - s3:
+        bucket: ${self:service}-stack-${self:provider.region}-${self:provider.stage}
+        event: s3:ObjectCreated:*
+        existing: true
+        rules:
+          - suffix: .yml
+    - s3:
+        bucket: ${self:service}-stack-${self:provider.region}-${self:provider.stage}
+        event: s3:ObjectCreated:*
+        existing: true
+        rules:
+          - suffix: .yaml

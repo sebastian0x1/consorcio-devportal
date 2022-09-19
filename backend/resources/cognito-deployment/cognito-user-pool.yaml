@@ -1,0 +1,174 @@
+Parameters:
+  SesEmail:
+    Type: String
+    # Default: "rodrigo.martinez@cloudhesive.com"
+  Stage:
+    Type: String
+    # Default: "dev"
+  MetadataURL:
+    Type: String
+    Default: 'https://login.microsoftonline.com/006088d4-d6d4-4408-b1d9-89daddc33842/federationmetadata/2007-06/federationmetadata.xml?appid=54891790-e612-4637-931f-c05095974404'
+  DomainSSO:
+    Type: String
+    Default: '${AWS::StackName}-sso-${AWS::AccountId}'
+  Urls:
+    Type: String
+    Default: 'http://localhost:3000/loginAD'
+
+Resources:
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      # Generate a name based on the stage
+      UserPoolName: !Sub '${AWS::StackName}-user-pool'
+      # Set email as an alias
+      UsernameAttributes:
+        - email
+      EmailConfiguration:
+        EmailSendingAccount: DEVELOPER
+        From: !Ref SesEmail
+        ReplyToEmailAddress: !Ref SesEmail
+        SourceArn: !Sub 'arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/${SesEmail}'
+      Schema:
+        - Mutable: true
+          Name: 'name'
+          AttributeDataType: String
+          Required: true
+        - Mutable: true
+          Name: 'api_key'
+          AttributeDataType: String
+        - Mutable: true
+          Name: 'role_id'
+          AttributeDataType: Number
+        - Mutable: true
+          Name: 'user_permissions'
+          AttributeDataType: String
+        - Mutable: true
+          Name: 'user_active'
+          AttributeDataType: Number
+        - Mutable: true
+          Name: 'ssoClientSecret'
+          AttributeDataType: String
+        - Mutable: true
+          Name: 'ssoClientID'
+          AttributeDataType: String
+        - Mutable: true
+          Name: 'ssoUsername'
+          AttributeDataType: String
+        - Mutable: true
+          Name: 'ssoPassword'
+          AttributeDataType: String
+        - Mutable: true
+          Name: 'realm'
+          AttributeDataType: String
+        - Mutable: true
+          Name: 'grantType'
+          AttributeDataType: String
+      AutoVerifiedAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+          RequireUppercase: true
+      UserPoolTags:
+        name: 'CC'
+        Value: 9301
+        name: 'Proyecto'
+        Value: 'Dev Portal'
+        name: 'ambiente'
+        Value: 'ci-cd'
+        name: 'idAplicativo'
+        Value: 'Dev Portal'
+        name: 'responsable'
+        Value: 'ingenieria'
+
+  CognitoUserPoolClientForSSO:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      # Generate an app client name based on the stage
+      ClientName: !Sub '${AWS::StackName}-user-pool-client-sso'
+      UserPoolId:
+        Ref: CognitoUserPool
+      ExplicitAuthFlows:
+        - ADMIN_NO_SRP_AUTH
+      GenerateSecret: true
+      AccessTokenValidity: 3600
+      IdTokenValidity: 36000
+      TokenValidityUnits:
+        AccessToken: 'seconds'
+        IdToken: 'seconds'
+      SupportedIdentityProviders:
+        - !Ref UserPoolIdentityProvider
+      AllowedOAuthFlows:
+        - code
+      AllowedOAuthScopes:
+        - phone
+        - email
+        - openid
+      CallbackURLs:
+        - !Ref Urls
+      LogoutURLs:
+        - !Ref Urls
+      AllowedOAuthFlowsUserPoolClient: true
+
+  CognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      # Generate an app client name based on the stage
+      ClientName: !Sub '${AWS::StackName}-user-pool-client'
+      UserPoolId:
+        Ref: CognitoUserPool
+      ExplicitAuthFlows:
+        - ADMIN_NO_SRP_AUTH
+      GenerateSecret: false
+      AccessTokenValidity: 3600
+      IdTokenValidity: 36000
+      TokenValidityUnits:
+        AccessToken: 'seconds'
+        IdToken: 'seconds'
+
+
+  UserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      UserPoolId: !Ref CognitoUserPool
+      Domain: 
+         Fn::Sub: cs-${Stage}-sso-cs-domain
+
+  UserPoolIdentityProvider:
+    Type: AWS::Cognito::UserPoolIdentityProvider
+    Properties:
+      UserPoolId: !Ref CognitoUserPool
+      ProviderName: 'AzureAD'
+      ProviderDetails:
+        MetadataURL: !Ref MetadataURL
+      ProviderType: 'SAML'
+      AttributeMapping:
+        email: 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'
+        name: 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'
+      IdpIdentifiers:
+        - 'IdpIdentifier'
+
+Outputs:
+  UserPoolId:
+    Value: !Ref CognitoUserPool
+    Export:
+      Name: !Join ['-', [!Ref 'AWS::StackName', CognitoUserPool]]
+
+  UserPoolClientId:
+    Value: !Ref CognitoUserPoolClient
+    Export:
+      Name: !Join ['-', [!Ref 'AWS::StackName', CognitoUserPoolClient]]
+
+  UserPoolClientIdForSSO:
+    Value: !Ref CognitoUserPoolClientForSSO
+    Export:
+      Name: !Join ['-', [!Ref 'AWS::StackName', CognitoUserPoolClientSSO]]
+
+  UserPoolDomain:
+    Value: !Ref UserPoolDomain
+    Export:
+      Name: !Join ['-', [!Ref 'AWS::StackName', 'UserPoolDomain']]

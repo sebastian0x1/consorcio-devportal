@@ -1,0 +1,161 @@
+Parameters:
+  BucketFront:
+    Type: String
+  horario:
+    Type: String
+    Default: 'lu-vi 800-1900'
+  EVPCARN:
+    Type: String
+    Default: vpce-123123123 # TODO: JUAN OBTENER VPCEID PASADO POR PARAMETRO
+  BucketStack:
+    Type: String
+  BucketKey:
+    Type: String
+  # BucketName:
+  #   Type: String
+
+  
+
+
+Resources:
+  CSPortalFrontendS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref BucketFront
+      PublicAccessBlockConfiguration: 
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - Authorization
+              - Content-Length
+            AllowedMethods:
+              - GET
+            AllowedOrigins:
+              - '*'
+            MaxAge: 3000
+      Tags:
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+        - Key: horarioEncendido
+          Value: !Ref horario
+        - Key: backup
+          Value: bronze
+
+  # CSPortalFrontendPrivateBucketPolicy:
+  #   Type: AWS::S3::BucketPolicy
+  #   Properties:
+  #     PolicyDocument:
+  #       Id: MyPolicy
+  #       Version: '2012-10-17'
+  #       Statement:
+  #         - Sid: APIReadForGetBucketObjects
+  #           Effect: Allow
+  #           Principal: '*'
+  #           Action: s3:GetObject
+  #           Resource:
+  #             Fn::Join:
+  #               - ''
+  #               - - 'arn:aws:s3:::'
+  #                 - Ref: CSPortalFrontendS3Bucket
+  #                 - '/*'
+  #     Bucket:
+  #       Ref: CSPortalFrontendS3Bucket
+
+  S3BucketStack:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref BucketStack
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !Ref BucketKey
+      PublicAccessBlockConfiguration: 
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      AccessControl: Private
+      Tags:
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+        - Key: horarioEncendido
+          Value: !Ref horario
+        - Key: backup
+          Value: bronze
+
+  # TODO: JUAN Bucket de deploy, no deberia ser deployado en la cuenta CI/CD
+  # DeploySourceBucket:
+  #   Type: AWS::S3::Bucket
+  #   Properties:
+  #     BucketName: !Ref BucketName
+  #     BucketEncryption:
+  #       ServerSideEncryptionConfiguration:
+  #         - ServerSideEncryptionByDefault:
+  #             SSEAlgorithm: aws:kms
+  #             KMSMasterKeyID: !Ref BucketKey
+  #     VersioningConfiguration:
+  #       Status: Enabled
+  #     Tags:
+  #       - Key: CC
+  #         Value: 9301
+  #       - Key: Proyecto
+  #         Value: Dev Portal
+  #       - Key: ambiente
+  #         Value: ci-cd
+  #       - Key: idAplicativo
+  #         Value: Dev Portal
+  #       - Key: responsable
+  #         Value: ingenieria
+  #       - Key: horarioEncendido
+  #         Value: !Ref horario
+  #       - Key: backup
+  #         Value: bronze
+
+  # DeploySourceBucketBucketPolicy:
+  #   Type: AWS::S3::BucketPolicy
+  #   Properties:
+  #     Bucket: !Ref DeploySourceBucket
+  #     PolicyDocument:
+  #       Statement:
+  #         - Action:
+  #             - 's3:GetObject'
+  #           Effect: 'Allow'
+  #           Resource:
+  #             - !Sub 'arn:${AWS::Partition}:s3:::${DeploySourceBucket}/*'
+  #           Principal:
+  #             Service: serverlessrepo.amazonaws.com
+
+
+Outputs:
+  FrontBucket:
+    Description: 'FrontEnd Bucket'
+    Value: !Ref CSPortalFrontendS3Bucket
+    Export:
+      Name: !Join ['-', [!Ref 'AWS::StackName', CSPortalFrontendS3Bucket]]
+#   AWSConfigS3Bucket:
+#     Description: 'Encrypted S3 Bucket for Config Logs'
+#     Value:
+#       Ref: 'S3BucketStack'
+  
+  

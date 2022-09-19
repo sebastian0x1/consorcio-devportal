@@ -1,0 +1,990 @@
+{
+    "client": "Thunder Client",
+    "collectionName": "consorcio-seguros",
+    "dateExported": "2022-03-21T18:44:46.909Z",
+    "version": "1.1",
+    "folders": [
+        {
+            "containerId": "",
+            "sortNum": 5000,
+            "name": "STAGES",
+            "_id": "9c36a81f-400f-4b30-9413-e56697cb2a90",
+            "created": "2022-03-21T14:56:37.179Z"
+        },
+        {
+            "containerId": "",
+            "sortNum": 7500,
+            "name": "APIS",
+            "_id": "9ece309f-ba69-4a1d-a615-5d1a3d49c368",
+            "created": "2022-03-21T14:05:52.363Z"
+        },
+        {
+            "containerId": "",
+            "sortNum": 8750,
+            "name": "LINEAS DE NEGOCIO",
+            "_id": "0b223f80-3166-41b6-a32a-9aec31168899",
+            "created": "2022-03-21T15:07:40.572Z"
+        },
+        {
+            "containerId": "",
+            "sortNum": 10000,
+            "name": "ROLES",
+            "_id": "d44bc0bd-d096-478f-972e-c1ada7e06202",
+            "created": "2022-03-21T14:03:37.976Z"
+        },
+        {
+            "containerId": "",
+            "sortNum": 70000,
+            "name": "USUARIOS",
+            "_id": "7e59b5bb-e40f-42b3-be92-eddd8be42376",
+            "created": "2022-03-21T15:57:16.202Z"
+        },
+        {
+            "containerId": "",
+            "sortNum": 90000,
+            "name": "CREDENTIALS",
+            "_id": "4083303c-8503-4a51-a978-59e8985c3d11",
+            "created": "2022-03-21T18:34:41.210Z"
+        },
+        {
+            "containerId": "",
+            "sortNum": 100000,
+            "name": "OTHERS",
+            "_id": "d5653956-0d73-439c-8330-7cd563563232",
+            "created": "2022-03-21T18:41:23.736Z"
+        }
+    ],
+    "requests": [
+        {
+            "containerId": "d44bc0bd-d096-478f-972e-c1ada7e06202",
+            "sortNum": 5000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "GET - .../roles",
+            "url": "{{urlroles}}",
+            "method": "GET",
+            "modified": "2022-03-21T14:12:06.846Z",
+            "created": "2022-03-21T14:01:39.466Z",
+            "_id": "e4fb6df1-2e1c-4835-919d-d02dafd11b1e",
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "d44bc0bd-d096-478f-972e-c1ada7e06202",
+            "sortNum": 7500,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "GET - .../roles/permissions",
+            "url": "{{urlroles}}/permissions",
+            "method": "GET",
+            "modified": "2022-03-21T17:46:35.106Z",
+            "created": "2022-03-21T17:41:13.176Z",
+            "_id": "46b7fdfd-6a3b-49ea-afd5-2dfa72d32ef7",
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "d44bc0bd-d096-478f-972e-c1ada7e06202",
+            "sortNum": 8750,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "GET - .../roles/business-lines",
+            "url": "{{urlroles}}/business-lines",
+            "method": "GET",
+            "modified": "2022-03-21T17:46:36.586Z",
+            "created": "2022-03-21T17:43:33.086Z",
+            "_id": "39c5969a-070e-48fe-ba53-0e43bcababae",
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "d44bc0bd-d096-478f-972e-c1ada7e06202",
+            "sortNum": 10000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "POST .../roles",
+            "url": "{{urlroles}}",
+            "method": "POST",
+            "modified": "2022-03-21T14:52:13.609Z",
+            "created": "2022-03-18T19:32:36.637Z",
+            "_id": "0c76d1ef-0a2d-4e9d-be23-441ec9b951a7",
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\"role_name\":\"role_name\",\"role_description\":\"role_description\",\"role_business_lines\":[1],\"role_permissions\":[2],\"role_color\":\"blue\"}",
+                "form": []
+            },
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "d5653956-0d73-439c-8330-7cd563563232",
+            "sortNum": 10000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "POST - .../login",
+            "url": "{{url}}/login",
+            "method": "POST",
+            "modified": "2022-03-21T18:41:32.821Z",
+            "created": "2022-03-21T18:30:05.325Z",
+            "_id": "e5341020-d379-4781-a731-dab54263e20b",
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "d44bc0bd-d096-478f-972e-c1ada7e06202",
+            "sortNum": 20000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "PUT - .../roles/{role_id}",
+            "url": "{{urlroles}}/22",
+            "method": "PUT",
+            "modified": "2022-03-21T14:52:08.441Z",
+            "created": "2022-03-21T13:53:29.473Z",
+            "_id": "943c3b96-26c3-4e8d-842d-900ad60b05ca",
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n    \"role_name\": \"role_name\",\n    \"role_description\": \"role_description\",\n    \"role_business_lines\": [\n        1\n    ],\n    \"role_permissions\": [\n        2,\n        3,\n        5,\n        1\n    ],\n    \"role_color\": \"blue\"\n}",
+                "form": []
+            },
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "d5653956-0d73-439c-8330-7cd563563232",
+            "sortNum": 20000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "POST - .../reset_password",
+            "url": "{{url}}/reset_password",
+            "method": "POST",
+            "modified": "2022-03-21T18:41:34.384Z",
+            "created": "2022-03-21T18:32:38.278Z",
+            "_id": "c7cfb039-88c9-4c0a-9b7b-7994de448cc2",
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "d5653956-0d73-439c-8330-7cd563563232",
+            "sortNum": 30000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "POST - .../change_password",
+            "url": "{{url}}/change_password",
+            "method": "POST",
+            "modified": "2022-03-21T18:41:35.692Z",
+            "created": "2022-03-21T18:37:33.464Z",
+            "_id": "8f3b07d5-9dd4-449f-8a98-258c680d9561",
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "d44bc0bd-d096-478f-972e-c1ada7e06202",
+            "sortNum": 30000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "DELETE - .../roles/{role_id}",
+            "url": "{{urlroles}}/18",
+            "method": "DELETE",
+            "modified": "2022-03-21T14:04:33.399Z",
+            "created": "2022-03-21T13:59:47.709Z",
+            "_id": "e02c05ca-6b5b-4487-aa17-9cafd165453e",
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "d5653956-0d73-439c-8330-7cd563563232",
+            "sortNum": 40000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "POST - .../forgot_password",
+            "url": "{{url}}/forgot_password",
+            "method": "POST",
+            "modified": "2022-03-21T18:41:37.050Z",
+            "created": "2022-03-21T18:38:40.121Z",
+            "_id": "3e50344e-e688-40a5-9ef0-9791415223a4",
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "d5653956-0d73-439c-8330-7cd563563232",
+            "sortNum": 50000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "POST - .../confirm_user/{username}",
+            "url": "{{url}}/confirm_user/test",
+            "method": "POST",
+            "modified": "2022-03-21T18:41:38.058Z",
+            "created": "2022-03-21T18:40:13.729Z",
+            "_id": "191888b3-4e22-42f8-a2bd-f54d6a0c7358",
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "d5653956-0d73-439c-8330-7cd563563232",
+            "sortNum": 60000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "POST - .../resend_confirmation_code/{username}",
+            "url": "{{url}}/resend_confirmation_code/test",
+            "method": "POST",
+            "modified": "2022-03-21T18:41:39.188Z",
+            "created": "2022-03-21T18:40:53.474Z",
+            "_id": "4cd7e00d-16b9-4856-99e6-d69cdd1cdc8f",
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "9ece309f-ba69-4a1d-a615-5d1a3d49c368",
+            "sortNum": 60000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "GET - .../apis",
+            "url": "{{urlapis}}",
+            "method": "GET",
+            "modified": "2022-03-21T15:56:58.652Z",
+            "created": "2022-03-21T14:12:15.801Z",
+            "_id": "bd8a7358-a85f-48b4-90be-5d2345dbcd1a",
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "9ece309f-ba69-4a1d-a615-5d1a3d49c368",
+            "sortNum": 67500,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "GET - .../apis/menu/{role_id}",
+            "url": "{{urlapis}}/menu/1",
+            "method": "GET",
+            "modified": "2022-03-21T17:51:00.764Z",
+            "created": "2022-03-21T17:49:14.032Z",
+            "_id": "20c3aa87-24ce-4de4-bd49-b9f9c2b32117",
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "9ece309f-ba69-4a1d-a615-5d1a3d49c368",
+            "sortNum": 68750,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "GET - .../apis/swagger/{tag_account}/{stage}/{api_apiid}",
+            "url": "{{urlapis}}/swagger/1/1/1",
+            "method": "GET",
+            "modified": "2022-03-21T17:53:33.849Z",
+            "created": "2022-03-21T17:51:30.833Z",
+            "_id": "f5c16293-effc-4e65-832a-1423c2e47b62",
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "9ece309f-ba69-4a1d-a615-5d1a3d49c368",
+            "sortNum": 70000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "POST - .../apis",
+            "url": "{{urlapis}}",
+            "method": "POST",
+            "modified": "2022-03-21T15:56:58.653Z",
+            "created": "2022-03-21T14:14:46.249Z",
+            "_id": "5432bfeb-be4a-4811-b55b-4b4fe5b75f29",
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "9ece309f-ba69-4a1d-a615-5d1a3d49c368",
+            "sortNum": 80000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "PUT - .../apis/{api_id}",
+            "url": "{{urlapis}}/1",
+            "method": "PUT",
+            "modified": "2022-03-21T15:56:58.663Z",
+            "created": "2022-03-21T14:36:29.962Z",
+            "_id": "a9828158-1e7b-478c-81c6-0d0dca720c86",
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n    \"api_name\": \"api_name\",\n    \"api_stage_id\": 2,\n    \"api_color\": \"blue\",\n    \"api_tag_account_id\": 1,\n    \"api_tag_account_name\": \"default\"\n}",
+                "form": []
+            },
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "9ece309f-ba69-4a1d-a615-5d1a3d49c368",
+            "sortNum": 90000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "DELETE - .../apis/{api_id}",
+            "url": "{{urlapis}}/1",
+            "method": "DELETE",
+            "modified": "2022-03-21T15:56:58.666Z",
+            "created": "2022-03-21T14:54:57.451Z",
+            "_id": "59a84d04-61d0-4f53-8ea0-f99e77c8b694",
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "9c36a81f-400f-4b30-9413-e56697cb2a90",
+            "sortNum": 100000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "GET - .../stages",
+            "url": "{{urlstages}}",
+            "method": "GET",
+            "modified": "2022-03-21T15:56:52.498Z",
+            "created": "2022-03-21T14:57:01.923Z",
+            "_id": "3084118d-0905-4ebb-9c4b-ac7e58cf8238",
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "9c36a81f-400f-4b30-9413-e56697cb2a90",
+            "sortNum": 110000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "PUT - .../stages",
+            "url": "{{urlstages}}/1",
+            "method": "PUT",
+            "modified": "2022-03-21T15:56:52.498Z",
+            "created": "2022-03-21T15:01:19.762Z",
+            "_id": "f34e097f-41e3-4636-8e62-8853f0d4f8b5",
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n    \"stage_color\": \"blue\",\n    \"stage_active\": 1\n}",
+                "form": []
+            },
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "0b223f80-3166-41b6-a32a-9aec31168899",
+            "sortNum": 140000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "GET - .../business-line",
+            "url": "{{urlbusiness}}",
+            "method": "GET",
+            "modified": "2022-03-21T15:57:02.605Z",
+            "created": "2022-03-21T15:08:30.867Z",
+            "_id": "c23b7f34-43ee-4394-aba2-e6943ce0f210",
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "0b223f80-3166-41b6-a32a-9aec31168899",
+            "sortNum": 145000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "GET - .../business-line/tagAccounts",
+            "url": "{{urlbusiness}}/tagAccounts",
+            "method": "GET",
+            "modified": "2022-03-21T17:48:03.494Z",
+            "created": "2022-03-21T17:46:28.463Z",
+            "_id": "5fba85e2-cc6f-460e-8395-68bbe65da7a7",
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "0b223f80-3166-41b6-a32a-9aec31168899",
+            "sortNum": 147500,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "GET - .../business-line/apis",
+            "url": "{{urlbusiness}}/apis",
+            "method": "GET",
+            "modified": "2022-03-21T17:55:38.798Z",
+            "created": "2022-03-21T17:54:53.296Z",
+            "_id": "ac1da3bf-f935-49ff-ab26-afba0e9bfa2a",
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "0b223f80-3166-41b6-a32a-9aec31168899",
+            "sortNum": 150000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "POST - .../business-line",
+            "url": "{{urlbusiness}}",
+            "method": "POST",
+            "modified": "2022-03-21T15:57:02.606Z",
+            "created": "2022-03-21T15:45:27.485Z",
+            "_id": "2195dc26-5017-4ba9-9f1b-fd322cbcf13e",
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n    \"business_line_name\": \"business_line_name\",\n    \"business_line_apis_tag_accounts\": [\n        1\n    ],\n    \"business_line_apis\": [\n        \"1\"\n    ],\n    \"business_line_color\": \"blue\"\n}",
+                "form": []
+            },
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "0b223f80-3166-41b6-a32a-9aec31168899",
+            "sortNum": 160000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "PUT - .../business-line/{business_line_id}",
+            "url": "{{urlbusiness}}/3",
+            "method": "PUT",
+            "modified": "2022-03-21T15:57:02.610Z",
+            "created": "2022-03-21T15:50:51.044Z",
+            "_id": "37da14ba-1cad-4afb-ae8a-5f746c6f5c36",
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n    \"business_line_name\": \"business_line_name\",\n    \"business_line_apis_tag_accounts\": [\n        1\n    ],\n    \"business_line_apis\": [\n        \"1\"\n    ],\n    \"business_line_color\": \"blue\"\n}",
+                "form": []
+            },
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "0b223f80-3166-41b6-a32a-9aec31168899",
+            "sortNum": 170000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "DELETE - .../business-line/{business_line_id}",
+            "url": "{{urlbusiness}}/3",
+            "method": "DELETE",
+            "modified": "2022-03-21T15:57:02.614Z",
+            "created": "2022-03-21T15:55:37.338Z",
+            "_id": "3f029c49-7b19-4fcb-9ebc-295db0de6a64",
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "7e59b5bb-e40f-42b3-be92-eddd8be42376",
+            "sortNum": 180000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "GET - .../users",
+            "url": "{{urlusers}}",
+            "method": "GET",
+            "modified": "2022-03-21T16:03:32.475Z",
+            "created": "2022-03-21T16:02:22.263Z",
+            "_id": "16e18185-dfb4-41e8-9c3c-1794b95c384b",
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "7e59b5bb-e40f-42b3-be92-eddd8be42376",
+            "sortNum": 185000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "GET - .../users/roles",
+            "url": "{{urlusers}}/roles",
+            "method": "GET",
+            "modified": "2022-03-21T16:34:30.020Z",
+            "created": "2022-03-21T16:33:52.212Z",
+            "_id": "20e036d8-3dfa-4dff-a511-558efb6665a5",
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "7e59b5bb-e40f-42b3-be92-eddd8be42376",
+            "sortNum": 190000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "POST - .../users",
+            "url": "{{urlusers}}",
+            "method": "POST",
+            "modified": "2022-03-21T16:07:24.709Z",
+            "created": "2022-03-21T16:04:29.295Z",
+            "_id": "903a1a64-0ee7-4cf0-b28f-89d612e17143",
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n    \"user_name\": \"U2FsdGVkX1/fXdHmsbLnA2Ijxxr8FrJJ1IF6F753pqM=\",\n    \"user_email\": \"U2FsdGVkX1+OyJV/riEeac7dsPagLYKzDw2O14qFMKgCNPpwHa8MJVqf9hcQHEg5\",\n    \"user_password\": \"U2FsdGVkX1/EC3+keUisea6/PuMG4fc7XIDkdAAHw1s=\",\n    \"user_role_id\": 1\n}",
+                "form": []
+            },
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "7e59b5bb-e40f-42b3-be92-eddd8be42376",
+            "sortNum": 200000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "PUT .../users/{cognito_id}",
+            "url": "{{urlusers}}/885d35fb-159f-4bef-8e89-200cc185b608",
+            "method": "PUT",
+            "modified": "2022-03-21T16:17:29.543Z",
+            "created": "2022-03-21T16:07:39.805Z",
+            "_id": "f4332c15-01ca-4cbf-b242-3928c499b1dc",
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n    \"user_name\": \"username\",\n    \"user_role_id\": 1,\n    \"user_active\": 1\n}",
+                "form": []
+            },
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "7e59b5bb-e40f-42b3-be92-eddd8be42376",
+            "sortNum": 210000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "DELETE - .../users/{cognito_id}",
+            "url": "{{urlusers}}/885d35fb-159f-4bef-8e89-200cc185b608",
+            "method": "DELETE",
+            "modified": "2022-03-21T16:19:14.832Z",
+            "created": "2022-03-21T16:18:29.778Z",
+            "_id": "9b52a75b-60e9-41be-917d-fda696a5f102",
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "4083303c-8503-4a51-a978-59e8985c3d11",
+            "sortNum": 330000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "POST - .../credentials",
+            "url": "{{url}}/credentials",
+            "method": "POST",
+            "modified": "2022-03-21T18:35:19.652Z",
+            "created": "2022-03-21T18:34:59.102Z",
+            "_id": "92f42cff-4467-4c1f-a9b6-d414992a543f",
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        },
+        {
+            "containerId": "4083303c-8503-4a51-a978-59e8985c3d11",
+            "sortNum": 340000,
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)"
+                }
+            ],
+            "colId": "167421f6-d06b-4cd3-8531-610614d59591",
+            "name": "PUT - .../credentials/{cognito_id}",
+            "url": "{{url}}/credentials/test",
+            "method": "PUT",
+            "modified": "2022-03-21T18:37:05.817Z",
+            "created": "2022-03-21T18:35:51.937Z",
+            "_id": "b3ad2be5-0f70-4e74-b980-476d9828a455",
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{token}}"
+            },
+            "tests": []
+        }
+    ]
+}

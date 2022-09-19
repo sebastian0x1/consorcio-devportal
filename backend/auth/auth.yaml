@@ -1,0 +1,26 @@
+login:
+  handler: auth/login.handler
+  events:
+    - http:
+        path: /login
+        cors: true
+        method: 'POST'
+
+loginAD:
+  handler: auth/loginAD.handler
+  events:
+    - http:
+        path: /loginAD
+        cors: true
+        method: 'POST'
+
+refreshTokens:
+  handler: auth/refreshTokens.handler
+  events:
+    - http:
+        path: /auth/refreshTokens
+        cors: true
+        method: 'POST'
+
+basicUserAuthorizer:
+  handler: auth/validateToken.handler

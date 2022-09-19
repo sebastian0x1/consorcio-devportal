@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Parameters:
+  ARNROLE:
+    Type: String
+
+Resources:
+  EventRule:
+    Type: AWS::Events::Rule
+    DependsOn: EventBridgeIAMrole
+    Properties:
+      Name: member-account-trigger-from-config
+      Description: "EventRule"
+      EventPattern:
+        source:
+          - "aws.config"
+        detail-type:
+          - "Config Configuration Item Change"
+        detail:
+          configurationItem:
+            resourceType:
+              - "AWS::ApiGateway::Stage"
+              - "AWS::ApiGateway::RestApi"
+              - "AWS::ApiGatewayV2::Api"
+              - "AWS::ApiGatewayV2::Stage"
+      State: "ENABLED"
+      Targets:
+        - Arn: !Ref ARNROLE
+          Id: "cross-destination-cs-portal-main-eventbus"
+          RoleArn: !GetAtt
+            - EventBridgeIAMrole
+            - Arn
+
+  EventBridgeIAMrole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: 
+                - "events.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        - PolicyName: "PutEventsDestinationBus"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action: "events:PutEvents"
+                Resource: !Ref ARNROLE

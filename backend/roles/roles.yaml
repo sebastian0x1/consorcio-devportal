@@ -1,0 +1,77 @@
+get-roles:
+  handler: roles/AbmRoleTable.handler
+  events:
+    - http:
+        path: /roles
+        cors: true
+        method: 'GET'
+        authorizer: 
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { "Fn::GetAtt": ["BasicUserAuthorizerLambdaFunction", "Arn"] }
+          resultTtlInSeconds: 0
+
+create-roles:
+  handler: roles/createRole.handler
+  events:
+    - http:
+        path: /roles
+        cors: true
+        method: 'POST'
+        authorizer: 
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { "Fn::GetAtt": ["BasicUserAuthorizerLambdaFunction", "Arn"] }
+          resultTtlInSeconds: 0
+
+remove-roles:
+  handler: roles/deleteRole.handler
+  events:
+    - http:
+        path: /roles/{role_id}
+        cors: true
+        method: 'DELETE'
+        authorizer: 
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { "Fn::GetAtt": ["BasicUserAuthorizerLambdaFunction", "Arn"] }
+          resultTtlInSeconds: 0
+
+update-roles:
+  handler: roles/updateRole.handler
+  events:
+    - http:
+        path: /roles/{role_id}
+        cors: true
+        method: 'PUT'
+        authorizer: 
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { "Fn::GetAtt": ["BasicUserAuthorizerLambdaFunction", "Arn"] }
+          resultTtlInSeconds: 0
+
+get-roles-business-lines:
+  handler: roles/getBusinessLines.handler
+  events:
+    - http:
+        path: /roles/business-lines
+        cors: true
+        method: 'GET'
+        authorizer: 
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { "Fn::GetAtt": ["BasicUserAuthorizerLambdaFunction", "Arn"] }
+          resultTtlInSeconds: 0
+
+get-roles-permissions:
+  handler: roles/getPermissions.handler
+  events:
+    - http:
+        path: /roles/permissions
+        cors: true
+        method: 'GET'
+        authorizer: 
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { "Fn::GetAtt": ["BasicUserAuthorizerLambdaFunction", "Arn"] }
+          resultTtlInSeconds: 0

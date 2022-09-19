@@ -1,0 +1,3 @@
+create-tables:
+  handler: database/createTables.handler
+  timeout: 300

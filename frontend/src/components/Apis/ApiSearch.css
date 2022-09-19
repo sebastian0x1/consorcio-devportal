@@ -1,0 +1,5 @@
+#api-search .input,
+#api-search input,
+#api-search .results {
+  width: 100%;
+}

@@ -1,0 +1,2 @@
+create-realms:
+  handler: realms/createRealms.handler

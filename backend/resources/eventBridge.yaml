@@ -1,0 +1,110 @@
+Resources:
+  EventBusNotificationQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ${self:service}-${env:STAGE}-eventbus-notification-queue
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - 'EventBusNotificationDeadLetterQueue'
+            - 'Arn'
+        maxReceiveCount: 5
+      Tags:
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+  EventBusNotificationDeadLetterQueue:
+    Type: 'AWS::SQS::Queue'
+
+  SQSPolicy:
+    Type: AWS::SQS::QueuePolicy
+    DependsOn: EventBusNotificationQueue
+    Properties:
+      Queues:
+        - !Ref EventBusNotificationQueue
+      PolicyDocument:
+        Statement:
+          - Action:
+              - 'sqs:SendMessage'
+            Effect: 'Allow'
+            Resource:
+              Fn::GetAtt:
+                - 'EventBusNotificationQueue'
+                - 'Arn'
+            Principal:
+              Service:
+                - 'events.amazonaws.com'
+            Condition:
+              ArnEquals:
+                aws:SourceArn: 'arn:aws:events:us-east-1:${env:AWS_ACCOUNT_ID}:rule/cs-portal-main-eventbus/trigger-to-sqs'
+
+# El siguiente recurso no debe estar aquí sino en el stack de una cuenta miembro!!
+# EventRule para una cuenta miembro. Ésta cuenta enviará eventos a la cuenta principal de la organización.
+# AWSTemplateFormatVersion: "2010-09-09"
+# Parameters:
+#   STAGE:
+#     Type: String
+#     Default: "cicd"
+#   REGION:
+#     Type: String
+#     Default: "us-east-1"
+#   AWSACCOUNTID:
+#     Type: Number
+#     Default: 952129677059
+#   ARNROLE:
+#     Type: String
+
+# Resources:
+#   EventRule:
+#     Type: AWS::Events::Rule
+#     DependsOn: EventBridgeIAMrole
+#     Properties:
+#       Name: member-account-trigger-from-config
+#       Description: "EventRule"
+#       EventPattern:
+#         source:
+#           - "aws.config"
+#         detail-type:
+#           - "Config Configuration Item Change"
+#         detail:
+#           configurationItem:
+#             resourceType:
+#               - "AWS::ApiGateway::Stage"
+#               - "AWS::ApiGateway::RestApi"
+#               - "AWS::ApiGatewayV2::Api"
+#               - "AWS::ApiGatewayV2::Stage"
+#       State: "ENABLED"
+#       Targets:
+#         - Arn: !Ref ARNROLE
+#           Id: "cross-destination-cs-portal-main-eventbus"
+#           RoleArn: !GetAtt
+#             - EventBridgeIAMrole
+#             - Arn
+
+#   EventBridgeIAMrole:
+#     Type: "AWS::IAM::Role"
+#     Properties:
+#       AssumeRolePolicyDocument:
+#         Version: "2012-10-17"
+#         Statement:
+#           - Effect: "Allow"
+#             Principal:
+#               Service: 
+#                 - "events.amazonaws.com"
+#             Action: "sts:AssumeRole"
+#       Path: "/"
+#       Policies:
+#         - PolicyName: "PutEventsDestinationBus"
+#           PolicyDocument:
+#             Version: "2012-10-17"
+#             Statement:
+#               - Effect: "Allow"
+#                 Action: "events:PutEvents"
+#                 Resource: !Ref ARNROLE

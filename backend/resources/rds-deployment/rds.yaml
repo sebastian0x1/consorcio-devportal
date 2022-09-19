@@ -1,0 +1,670 @@
+# Creción de instancia de RDS y recursos para proteger el acceso a la base de datos mediante bastion
+# Los recursos creados son:
+#   Instancia RDS: Crea la DB con el motor mariadb
+#   Instancia EC2: Nos permitirá conectarnos mediante ssh para comunicarnos con la DB
+
+#   Security Group de Bastion: Asociado a la VPC
+#   Inbound rules del BastionSecurityGroup: ip y puertos
+#   Outbound rules del BastionSecurityGroup: ip y puertos
+
+#   Security Group de RDS: Asociado a la VPC
+#   Inbound rules del RdsSecurityGroup: ip y puertos
+#   Outbound rules del RdsSecurityGroup: ip y puertos
+
+#   VPC: VPC dónde estarán las subnets y los recursos
+#   Subnet Group de RDS: se asocian las dos subnets de la vpc
+#   Subnet pública: Subnet pública que estará asociada la instancia EC2
+#   Subnet privada: Permite a las lambdas conectarse a RDS
+
+#   Internet Gateway: IG para comunicarse mediante internet con la VPC
+#   VPCGatewayAttachment: Asocia el IG a la VPC
+#   RouteTable: Se definen las reglas (rutas) para poder tener acceso a los recursos
+#   Route: Vincula el IG con la RouteTable y define quién tiene acceso a los recursos
+#   SubnetRouteTableAssociation: Conecta la Subnet, la VPC junto con la tabla de ruta que da acceso para poder llegar a la instancia EC2
+
+Parameters:
+  BastionImageId:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn-ami-hvm-x86_64-ebs'
+  BastionKeyName:
+    Type: 'AWS::EC2::KeyPair::KeyName'
+    Description: 'EC2 key used to connect to the bastion host'
+  ServiceName:
+    Type: String
+  VPCCIDR:
+    Type: String
+    Default: '10.0.0.0/16'
+  DBName:
+    Type: String
+  DbArnSecret:
+    Type: String
+  horario:
+    Type: String
+    Default: 'lu-vi 800-1900'
+
+Resources:
+  Bastion:
+    Type: AWS::EC2::Instance
+    Properties:
+      DisableApiTermination: false
+      ImageId: !Ref BastionImageId
+      InstanceType: t2.micro
+      KeyName: !Ref BastionKeyName
+      Monitoring: false
+      SecurityGroupIds:
+        - !Ref BastionSecurityGroup
+      SubnetId: !Ref PublicSubnet1
+      Tags:
+        - Key: name
+          Value: !Ref ServiceName
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+        - Key: horarioEncendido
+          Value: !Ref horario
+        - Key: backup
+          Value: bronze
+
+  BastionSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub 'Bastion Security Group for ${ServiceName}'
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: '-1'
+      Tags:
+        - Key: name
+          Value: BastionSecurityGroup
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+
+  RDSInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      #DBName: !Ref DBName
+      MasterUsername: !Sub '{{resolve:secretsmanager:${DbArnSecret}:SecretString:MYSQL_USER}}'
+      MasterUserPassword: !Sub '{{resolve:secretsmanager:${DbArnSecret}:SecretString:MYSQL_PASSWORD}}'
+      Engine: mariadb
+      EngineVersion: 10.5.13
+      AllocatedStorage: 20
+      PubliclyAccessible: true
+      MaxAllocatedStorage: 1000
+      BackupRetentionPeriod: 7
+      StorageType: gp2
+      #DBInstanceIdentifier: cs-portal
+      DBInstanceClass: db.t2.micro
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      VPCSecurityGroups:
+        - !Ref RdsSecurityGroup
+      Tags:
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+        - Key: lineaNegocio
+          Value: Transversales
+        - Key: horarioEncendido
+          Value: !Ref horario
+        - Key: backup
+          Value: bronze
+
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: RDS Subnet Group
+      DBSubnetGroupName: !Sub '${ServiceName}-dbsubnetgroup'
+      SubnetIds:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+        - !Ref PrivateSubnet3
+      Tags:
+        - Key: Name
+          Value: !Sub '${ServiceName}-DBSubnetGroup'
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+
+  RdsSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub 'Internal Security group for ${ServiceName}'
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        CidrIp: 0.0.0.0/0
+        FromPort: 3306
+        IpProtocol: tcp
+        ToPort: 3306
+      Tags:
+        - Key: name
+          Value: !Sub '${ServiceName}-RdsSecurityGroup'
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VPCCIDR
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: 'Name'
+          Value: 'VPC'
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select
+        - 0
+        - !GetAZs ''
+      CidrBlock: 10.0.8.0/24
+      # MapPublicIpOnLaunch: false
+      Tags:
+        - Key: 'Name'
+          Value: 'PrivateSubnet'
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select
+        - 1
+        - !GetAZs ''
+      CidrBlock: 10.0.9.0/24
+      # MapPublicIpOnLaunch: false
+      Tags:
+        - Key: 'Name'
+          Value: 'PrivateSubnet'
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+
+  PrivateSubnet3:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select
+        - 0
+        - !GetAZs ''
+      CidrBlock: 10.0.10.0/24
+      # MapPublicIpOnLaunch: false
+      Tags:
+        - Key: 'Name'
+          Value: 'PrivateSubnet'
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select
+        - 0
+        - !GetAZs ''
+      CidrBlock: 10.0.11.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: 'Name'
+          Value: 'PublicSubnet'
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+
+  VirtualNetworkPrivateSubnet1NatGatewayEIP:
+    Metadata:
+      StackeryManaged: true
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+
+  VirtualNetworkPrivateSubnet1NatGateway:
+    Metadata:
+      StackeryManaged: true
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt VirtualNetworkPrivateSubnet1NatGatewayEIP.AllocationId
+      SubnetId: !Ref PublicSubnet1
+      Tags:
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+
+  VirtualNetworkPrivateSubnet1RouteTable:
+    Metadata:
+      StackeryManaged: true
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub '${ServiceName}-VirtualNetworkPrivateSubnet1RouteTable'
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+      VpcId: !Ref VPC
+
+  VirtualNetworkPrivateSubnet1NatGatewayRoute:
+    Metadata:
+      StackeryManaged: true
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref VirtualNetworkPrivateSubnet1NatGateway
+      RouteTableId: !Ref VirtualNetworkPrivateSubnet1RouteTable
+      # Tags:
+      #   - Key: CC
+      #     Value: 9301
+      #   - Key: Proyecto
+      #     Value: Dev Portal
+      #   - Key: ambiente
+      #     Value: ci-cd
+      #   - Key: idAplicativo
+      #     Value: Dev Portal
+      #   - Key: responsable
+      #     Value: ingenieria
+
+  VirtualNetworkPrivateSubnet1RouteTableAssociation:
+    Metadata:
+      StackeryManaged: true
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref VirtualNetworkPrivateSubnet1RouteTable
+      SubnetId: !Ref PrivateSubnet1
+
+  VirtualNetworkPrivateSubnet2NatGatewayEIP:
+    Metadata:
+      StackeryManaged: true
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+
+  VirtualNetworkPrivateSubnet2NatGateway:
+    Metadata:
+      StackeryManaged: true
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt VirtualNetworkPrivateSubnet2NatGatewayEIP.AllocationId
+      SubnetId: !Ref PublicSubnet1
+      Tags:
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+
+  VirtualNetworkPrivateSubnet2RouteTable:
+    Metadata:
+      StackeryManaged: true
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub '${ServiceName}-VirtualNetworkPrivateSubnet2RouteTable'
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+      VpcId: !Ref VPC
+
+  VirtualNetworkPrivateSubnet2NatGatewayRoute:
+    Metadata:
+      StackeryManaged: true
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref VirtualNetworkPrivateSubnet2NatGateway
+      RouteTableId: !Ref VirtualNetworkPrivateSubnet2RouteTable
+
+  VirtualNetworkPrivateSubnet2RouteTableAssociation:
+    Metadata:
+      StackeryManaged: true
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref VirtualNetworkPrivateSubnet2RouteTable
+      SubnetId: !Ref PrivateSubnet2
+
+  VirtualNetworkPrivateSubnet3NatGatewayEIP:
+    Metadata:
+      StackeryManaged: true
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+
+  VirtualNetworkPrivateSubnet3NatGateway:
+    Metadata:
+      StackeryManaged: true
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt VirtualNetworkPrivateSubnet3NatGatewayEIP.AllocationId
+      SubnetId: !Ref PublicSubnet1
+      Tags:
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+
+  VirtualNetworkPrivateSubnet3RouteTable:
+    Metadata:
+      StackeryManaged: true
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub '${ServiceName}-VirtualNetworkPrivateSubnet1RouteTable'
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+      VpcId: !Ref VPC
+
+  VirtualNetworkPrivateSubnet1NatGatewayRoute:
+    Metadata:
+      StackeryManaged: true
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref VirtualNetworkPrivateSubnet3NatGateway
+      RouteTableId: !Ref VirtualNetworkPrivateSubnet3RouteTable
+      # Tags:
+      #   - Key: CC
+      #     Value: 9301
+      #   - Key: Proyecto
+      #     Value: Dev Portal
+      #   - Key: ambiente
+      #     Value: ci-cd
+      #   - Key: idAplicativo
+      #     Value: Dev Portal
+      #   - Key: responsable
+      #     Value: ingenieria
+
+  VirtualNetworkPrivateSubnet3RouteTableAssociation:
+    Metadata:
+      StackeryManaged: true
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref VirtualNetworkPrivateSubnet1RouteTable
+      SubnetId: !Ref PrivateSubnet3
+
+  VirtualNetworkPublicSubnetsInternetGateway:
+    Metadata:
+      StackeryManaged: true
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub '${ServiceName}-VirtualNetworkPublicSubnetsInternetGateway'
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+
+  VirtualNetworkPublicSubnetsInternetGatewayAttachment:
+    Metadata:
+      StackeryManaged: true
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref VirtualNetworkPublicSubnetsInternetGateway
+      VpcId: !Ref VPC
+      # Tags:
+      # - Key: 'CC'
+      #   Value: 'POR CONFIRMAR'
+      # - Key: 'proyecto'
+      #   Value: 'Proyecto1'
+      # - Key: 'ambiente'
+      #   Value: 'ci-cd'
+      # - Key: 'idAplicativo'
+      #   Value: 'Dev Portal'
+      # - Key: 'responsable'
+      #   Value: 'POR CONFIRMAR'
+
+  VirtualNetworkPublicSubnetsRouteTable:
+    Metadata:
+      StackeryManaged: true
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub '${ServiceName}-VirtualNetworkPublicSubnetsRouteTable'
+        - Key: CC
+          Value: 9301
+        - Key: Proyecto
+          Value: Dev Portal
+        - Key: ambiente
+          Value: ci-cd
+        - Key: idAplicativo
+          Value: Dev Portal
+        - Key: responsable
+          Value: ingenieria
+      VpcId: !Ref VPC
+
+  VirtualNetworkPublicSubnetsInternetGatewayRoute:
+    Metadata:
+      StackeryManaged: true
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref VirtualNetworkPublicSubnetsInternetGateway
+      RouteTableId: !Ref VirtualNetworkPublicSubnetsRouteTable
+      # Tags:
+      # - Key: 'CC'
+      #   Value: 'POR CONFIRMAR'
+      # - Key: 'proyecto'
+      #   Value: 'Proyecto1'
+      # - Key: 'ambiente'
+      #   Value: 'ci-cd'
+      # - Key: 'idAplicativo'
+      #   Value: 'Dev Portal'
+      # - Key: 'responsable'
+      #   Value: 'POR CONFIRMAR'
+
+  VirtualNetworkPublicSubnet1RouteTableAssociation:
+    Metadata:
+      StackeryManaged: true
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref VirtualNetworkPublicSubnetsRouteTable
+      SubnetId: !Ref PublicSubnet1
+      # Tags:
+      # - Key: 'CC'
+      #   Value: 'POR CONFIRMAR'
+      # - Key: 'proyecto'
+      #   Value: 'Proyecto1'
+      # - Key: 'ambiente'
+      #   Value: 'ci-cd'
+      # - Key: 'idAplicativo'
+      #   Value: 'Dev Portal'
+      # - Key: 'responsable'
+      #   Value: 'POR CONFIRMAR'
+
+Outputs:
+  EndPoint:
+    Value: !GetAtt RDSInstance.Endpoint.Address
+    Export:
+      Name: !Join ['-', [!Ref 'AWS::StackName', 'EndPoint']]
+  VPCDefaultSecurityGroup:
+    Value: !Ref RdsSecurityGroup
+    Export:
+      Name: !Join ['-', [!Ref 'AWS::StackName', 'SGRDS']]
+  VPC:
+    Value: !Ref VPC
+    Export:
+      Name: !Join ['-', [!Ref 'AWS::StackName', 'VPC']]
+  PrivateSubnet1ID:
+    Value: !Ref PrivateSubnet1
+    Export:
+      Name: !Join ['-', [!Ref 'AWS::StackName', 'PrivateSubnet1']]
+  PrivateSubnet2ID:
+    Value: !Ref PrivateSubnet2
+    Export:
+      Name: !Join ['-', [!Ref 'AWS::StackName', 'PrivateSubnet2']]
+  PrivateSubnet3ID:
+    Value: !Ref PrivateSubnet3
+    Export:
+      Name: !Join ['-', [!Ref 'AWS::StackName', 'PrivateSubnet3']]
+  BastionDomain:
+    Value: !GetAtt Bastion.PublicDnsName
+    Export:
+      Name: !Join ['-', [!Ref 'AWS::StackName', 'BastionDomain']]
+  PublicSubnetID:
+    Value: !Ref PublicSubnet1
+    Export:
+      Name: !Join ['-', [!Ref 'AWS::StackName', 'PublicSubnet']]
