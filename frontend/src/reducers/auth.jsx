@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit"
 import jwt_decode from 'jwt-decode'
+import { PERMISSION_TYPES } from '../services/self'
 
 const STORAGE_PERMISSIONS = 'userPermissions'
 const STORAGE_ID_ROLE = 'idRole'
@@ -21,6 +22,10 @@ const AUTH_STATE_INITIAL = {
     ssoUsername: undefined,
     ssoPassword: undefined,
 };
+
+function hasPermission(userPermissions,permType) {
+    return userPermissions && userPermissions.includes(permType);
+}
 
 // Auth Slice
 const authSlice = createSlice({
@@ -56,9 +61,8 @@ const authSlice = createSlice({
                 // console.log('action.payload.userPermissions', action.payload.userPermissions)
            
                 if(state.isADUser){
-                    state.idRole = storageValue(action.payload.idRole, STORAGE_ID_ROLE)
-                    let actionPermissions = action.payload.userPermissions?.split(',') || []
-                    state.userPermissions = storageValue(actionPermissions, STORAGE_PERMISSIONS)
+                    state.idRole = action.payload.idRole
+                    state.userPermissions = action.payload.userPermissions?.split(',') || []
                 }
                 else{
                     state.idRole = jwtDecoded['custom:role_id']
@@ -73,7 +77,14 @@ const authSlice = createSlice({
             // console.log('state.idRole dsp ', state.idRole)
             
             // console.log('state.isADUser', state.isADUser)
-            state.isAdmin = state.userPermissions?.length > 0
+            state.isAdmin = ((state.idRole == 2) |
+            (
+                hasPermission(state.userPermissions,PERMISSION_TYPES.PERMISSION_ABM_USERS) |
+                hasPermission(state.userPermissions,PERMISSION_TYPES.PERMISSION_ABM_APIS) |
+                hasPermission(state.userPermissions,PERMISSION_TYPES.PERMISSION_ABM_BUSINESS_LINES) |
+                hasPermission(state.userPermissions,PERMISSION_TYPES.PERMISSION_ABM_STAGES) |
+                hasPermission(state.userPermissions,PERMISSION_TYPES.PERMISSION_ABM_ROLES)
+            ))
             state.isLogged = true
 
             state.ssoClientSecret = jwtDecoded["custom:ssoClientSecret"]
