@@ -24,6 +24,19 @@ create-apis:
           arn: { 'Fn::GetAtt': ['BasicUserAuthorizerLambdaFunction', 'Arn'] }
           resultTtlInSeconds: 0
 
+create-apisO:
+  handler: apis/createApiO.handler
+  events:
+    - http:
+        path: /apis
+        cors: true
+        method: 'POST'
+        authorizer:
+          type: TOKEN
+          name: BasicUserAuthorizer
+          arn: { 'Fn::GetAtt': ['BasicUserAuthorizerLambdaFunction', 'Arn'] }
+          resultTtlInSeconds: 0
+
 remove-apis:
   handler: apis/deleteApi.handler
   events:
