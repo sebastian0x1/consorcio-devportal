@@ -147,6 +147,8 @@ const getUser = async (rta) => {
     ssoPassword: ssoPassword?.Value,
     realm: realm?.Value,
     grantType: grantType?.Value,
+    idRole: idRole?.Value,
+    userPermissions: userPermissions?.Value,
     userActive: userActive && Number(userActive.Value) === 1,
   }
 }
@@ -166,6 +168,8 @@ const recodeToken = async (rta, user) => {
   decodedTokenPayload['custom:realm'] = user.realm
   decodedTokenPayload['custom:grantType'] = user.grantType
   decodedTokenPayload['custom:user_active'] = user.userActive
+  decodedTokenPayload['custom:role_id'] = user.idRole
+  decodedTokenPayload['custom:user_permissions'] = user.userPermissions
 
   // encode payload JSON object to base64 string
   encodedtokenArr[1] = Buffer.from(JSON.stringify(decodedTokenPayload)).toString('base64')

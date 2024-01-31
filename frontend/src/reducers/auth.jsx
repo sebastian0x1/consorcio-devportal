@@ -59,16 +59,8 @@ const authSlice = createSlice({
             try {
                 // console.log('action.payload.idRole', action.payload.idRole)
                 // console.log('action.payload.userPermissions', action.payload.userPermissions)
-           
-                if(state.isADUser){
-                    state.idRole = action.payload.idRole
-                    state.userPermissions = action.payload.userPermissions?.split(',') || []
-                }
-                else{
-                    state.idRole = jwtDecoded['custom:role_id']
-                    state.userPermissions = jwtDecoded['custom:user_permissions'].split(',') || []
-                }
-                
+                state.idRole = jwtDecoded['custom:role_id']
+                state.userPermissions = jwtDecoded['custom:user_permissions'].split(',') || []
             } catch(e) {
                 state.userPermissions = []
                 state.idRole = ''
