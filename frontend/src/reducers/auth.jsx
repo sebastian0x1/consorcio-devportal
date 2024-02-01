@@ -69,14 +69,14 @@ const authSlice = createSlice({
             // console.log('state.idRole dsp ', state.idRole)
             
             // console.log('state.isADUser', state.isADUser)
-            state.isAdmin = ((state.idRole == 2) |
-            (
+            state.isAdmin = (state.idRole == 2)
+            /*(
                 hasPermission(state.userPermissions,PERMISSION_TYPES.PERMISSION_ABM_USERS) |
                 hasPermission(state.userPermissions,PERMISSION_TYPES.PERMISSION_ABM_APIS) |
                 hasPermission(state.userPermissions,PERMISSION_TYPES.PERMISSION_ABM_BUSINESS_LINES) |
                 hasPermission(state.userPermissions,PERMISSION_TYPES.PERMISSION_ABM_STAGES) |
                 hasPermission(state.userPermissions,PERMISSION_TYPES.PERMISSION_ABM_ROLES)
-            ))
+            ))*/
             state.isLogged = true
 
             state.ssoClientSecret = jwtDecoded["custom:ssoClientSecret"]
