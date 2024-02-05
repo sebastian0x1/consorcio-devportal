@@ -61,6 +61,8 @@ const authSlice = createSlice({
                 // console.log('action.payload.userPermissions', action.payload.userPermissions)
                 state.idRole = jwtDecoded['custom:role_id']
                 state.userPermissions = jwtDecoded['custom:user_permissions'].split(',') || []
+                localStorage.setItem(STORAGE_PERMISSIONS, btoa(state.userPermissions))
+                localStorage.setItem(STORAGE_ID_ROLE, btoa(state.idRole))
             } catch(e) {
                 state.userPermissions = []
                 state.idRole = ''
