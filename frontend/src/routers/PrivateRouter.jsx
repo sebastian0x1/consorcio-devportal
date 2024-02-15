@@ -5,8 +5,11 @@ import Apis from '../pages/Apis'
 import ChangePassword from '../pages/ChangePassword'
 import Configuration from '../pages/Configuration'
 import AdminRoute from './AdminRouter'
-
+import { Loader } from 'semantic-ui-react'
   export default function PrivateRouter({isLogged, isAdmin}) {
+    if (isLogged === undefined || isAdmin === undefined){
+      return <Loader active content="Cargando..." size="massive" />
+    }
     return (
       !isLogged ?
       <Navigate to="/login"/> :

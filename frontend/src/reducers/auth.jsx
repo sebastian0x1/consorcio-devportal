@@ -15,17 +15,14 @@ const AUTH_STATE_INITIAL = {
     email: undefined,
     idRole: undefined,
     userPermissions: undefined,
-    isAdmin: false,
-    isLogged: false,
+    isAdmin: undefined,
+    isLogged: undefined,
     ssoClientSecret: undefined,
     ssoClientID: undefined,
     ssoUsername: undefined,
     ssoPassword: undefined,
 };
 
-function hasPermission(userPermissions,permType) {
-    return userPermissions && userPermissions.includes(permType);
-}
 
 // Auth Slice
 const authSlice = createSlice({
@@ -57,28 +54,15 @@ const authSlice = createSlice({
             state.apiKey = jwtDecoded['custom:api_key']
 
             try {
-                // console.log('action.payload.idRole', action.payload.idRole)
-                // console.log('action.payload.userPermissions', action.payload.userPermissions)
                 state.idRole = jwtDecoded['custom:role_id']
                 state.userPermissions = jwtDecoded['custom:user_permissions'].split(',') || []
-                localStorage.setItem(STORAGE_PERMISSIONS, btoa(state.userPermissions))
-                localStorage.setItem(STORAGE_ID_ROLE, btoa(state.idRole))
             } catch(e) {
                 state.userPermissions = []
                 state.idRole = ''
             }
-            // console.log('state.userPermissions dsp', state.userPermissions)
-            // console.log('state.idRole dsp ', state.idRole)
-            
-            // console.log('state.isADUser', state.isADUser)
+
             state.isAdmin = (state.idRole == 2)
-            /*(
-                hasPermission(state.userPermissions,PERMISSION_TYPES.PERMISSION_ABM_USERS) |
-                hasPermission(state.userPermissions,PERMISSION_TYPES.PERMISSION_ABM_APIS) |
-                hasPermission(state.userPermissions,PERMISSION_TYPES.PERMISSION_ABM_BUSINESS_LINES) |
-                hasPermission(state.userPermissions,PERMISSION_TYPES.PERMISSION_ABM_STAGES) |
-                hasPermission(state.userPermissions,PERMISSION_TYPES.PERMISSION_ABM_ROLES)
-            ))*/
+
             state.isLogged = true
 
             state.ssoClientSecret = jwtDecoded["custom:ssoClientSecret"]
